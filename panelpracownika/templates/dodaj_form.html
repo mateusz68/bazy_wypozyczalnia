@@ -1,0 +1,37 @@
+{% extends 'base_panel.html' %}
+{% block head %}
+    <title>{{ title }}</title>
+{% endblock head %}
+
+{% block title %}
+    {{ title }}
+{% endblock title %}
+
+{% block content %}
+
+    <p>Uzupełniż poniższy formularz.</p>
+
+    <form action="{% url target %}" method="post">
+        {% csrf_token %}
+        {% for field in form %}
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label" for="{{ field.name }}">{{ field.label }}:</label>
+                <div class="col-sm-10">
+                    {{ field }}
+                </div>
+            </div>
+
+            {% for error in field.errors %}
+                <div class="alert alert-danger">
+                    <strong>Uwaga!</strong> {{ error }}
+                </div>
+            {% endfor %}
+
+        {% endfor %}
+        <div class="col text-center">
+            <button type="submit" class="btn btn-success btn-lg" >Dodaj</button>
+            <a href="#" onclick="history.go(-1)" class="btn btn-danger btn-lg" role="button">Anuluj</a>
+        </div>
+    </form>
+
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends 'base_panel.html' %}
+{% block head %}
+    <title>{{ title }}</title>
+{% endblock head %}
+
+{% block title %}
+    {{ title }}
+{% endblock title %}
+
+{% block content %}
+<div class="col text-center">
+    <form action="{% url target element.pk %}" method="post">
+        {% csrf_token %}
+        {{ form }}
+        Czy napewno chcesz usunąć następujący element:
+        <p class="font-weight-bold">{{ element }}</p>
+        <button type="submit" class="btn btn-danger btn-lg" >Usuń</button>
+        <a href="#" onclick="history.go(-1)" class="btn btn-success btn-lg" role="button">Anuluj</a>
+    </form>
+
+
+        </div>
+{% endblock %}

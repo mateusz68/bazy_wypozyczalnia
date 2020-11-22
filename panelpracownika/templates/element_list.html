@@ -1,0 +1,42 @@
+{% extends 'base_panel.html' %}
+{% block head %}
+    <title>{{ title}}</title>
+{% endblock head %}
+
+{% block title %}
+{{ title}}
+{% endblock title %}
+
+{% block content %}
+<div class="text-center">
+    <a href="{{ url }}/dodaj" class="btn btn-success btn-lg" role="button">Dodaj nowy element</a></div><br>
+
+    {% if elementy.all %}
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Nazwa</th>
+                <th scope="col">Edytuj</th>
+                <th scope="col">Usuń</th>
+            </tr>
+            </thead>
+            <tbody>
+
+            {% for element in elementy.all %}
+                <tr>
+                    <th scope="row">{{ forloop.counter }}</th>
+                    <td>{{ element }}</td>
+                    <td><a href="{{ url }}/edytuj/{{ element.pk }}" class="btn btn-primary" role="button">Edytuj</a></td>
+                    <td><a href="{{ url }}/usun/{{ element.pk }}" class="btn btn-danger" role="button">Usuń</a></td>
+                </tr>
+            {% endfor %}
+
+            </tbody>
+        </table>
+    {% else %}
+        <div class="alert alert-info">
+            <strong>Uwaga!</strong> Brak elementów do wyświetlenia
+        </div>
+    {% endif %}
+{% endblock %}
