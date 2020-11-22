@@ -33,6 +33,7 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     'accounts.apps.AccountsConfig',
     'wypozyczalnia.apps.WypozyczalniaConfig',
+    'panelpracownika.apps.PanelpracownikaConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -58,7 +59,10 @@ ROOT_URLCONF = 'bazy_projekt.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates']
+        'DIRS': [
+            BASE_DIR / 'templates',
+
+        ]
         ,
         'APP_DIRS': True,
         'OPTIONS': {

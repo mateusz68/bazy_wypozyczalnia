@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block head %}
+    <title>Typ Ubezpieczenia</title>
+{% endblock head %}
+
+{% block content %}
+
+    <h1>Zarządzaj typem ubezpieczenia.</h1>
+    <a href="typ_ubezpieczenia/dodaj" class="btn btn-success btn-lg" role="button">Dodaj nowy typ ubezpieczenia</a>
+    {% if typ_ubezpieczenia.all %}
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Typ</th>
+                <th scope="col"></th>
+                <th scope="col"></th>
+            </tr>
+            </thead>
+            <tbody>
+
+            {% for typ in typ_ubezpieczenia.all %}
+                <tr>
+                    <th scope="row">{{ forloop.counter }}</th>
+                    <td>{{ typ.variant }}</td>
+                    <td><a href="typ_ubezpieczenia/edytuj/{{ typ.pk }}" class="btn btn-primary" role="button">Edytuj</a></td>
+                    <td><a href="typ_ubezpieczenia/usun/{{ typ.pk }}" class="btn btn-danger" role="button">Usuń</a></td>
+                </tr>
+            {% endfor %}
+
+            </tbody>
+        </table>
+    {% else %}
+        <div class="alert alert-info">
+            <strong>Uwaga!</strong> Brak przyszłych wyborów.
+        </div>
+    {% endif %}
+{% endblock %}

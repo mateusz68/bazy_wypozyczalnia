@@ -1,9 +1,11 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from accounts.forms import UserAdminCreationForm, UserAdminChangeForm
+from django.contrib.auth.models import Group
 # Register your models here.
 from accounts.models import Uzytkownik
 from .models import *
+
 
 class UserAdmin(BaseUserAdmin):
     # Formularze do dodawania i zmiany użytkownika
@@ -28,7 +30,8 @@ class UserAdmin(BaseUserAdmin):
     ordering = ('email',)
     filter_horizontal = ()
 
-
+admin.site.unregister(Group)
+admin.site.site_header = "Wypożyczalnia Samochodów"
 admin.site.register(Uzytkownik)
 admin.site.register(Rezerwacja)
 admin.site.register(Samochod)
@@ -40,3 +43,4 @@ admin.site.register(SamochodKategoria)
 admin.site.register(Dokument)
 admin.site.register(Platnosc)
 admin.site.register(Ubezpieczenie)
+admin.site.register(TypUbezpieczenia)

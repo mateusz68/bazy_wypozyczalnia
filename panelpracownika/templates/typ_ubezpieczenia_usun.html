@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block head %}
+    <title>Typ Ubezpieczenia</title>
+{% endblock head %}
+
+{% block content %}
+
+    <h1>Usuń typ ubezpieczenia.</h1>
+
+    <form action="{% url 'panelpracownika:usun_typ_ubezpieczenia' typ.pk %}" method="post">
+        {% csrf_token %}
+        {{ form }}
+        Are you sure you want to delete the following post?<br><br>
+        {{ typ.variant }}<br><br>
+        <button class="button" type="submit">Edytuj</button>
+    </form>
+{% endblock %}
