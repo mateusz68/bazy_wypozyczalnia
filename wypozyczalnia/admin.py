@@ -44,3 +44,4 @@ admin.site.register(Dokument)
 admin.site.register(Platnosc)
 admin.site.register(Ubezpieczenie)
 admin.site.register(TypUbezpieczenia)
+
