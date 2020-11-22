@@ -66,3 +66,58 @@ class UserAdminChangeForm(forms.ModelForm):
 
     def clean_password(self):
         return self.initial["password"]
+
+class UserLoginForm(forms.Form):
+    email = forms.EmailField(label='Adres email', widget=forms.EmailInput(attrs={'class': 'form-control'}))
+    password = forms.CharField(label='Hasło',widget=forms.PasswordInput(attrs={'class': 'form-control'}))
+
+    def clean(self, *args, **kwargs):
+        email = self.cleaned_data.get('email')
+        password = self.cleaned_data.get('password')
+
+        if email and password:
+            user = authenticate(email=email, password=password)
+            if not user:
+                raise forms.ValidationError("Użytkownik nie istnieje")
+            if not user.is_active:
+                raise forms.ValidationError("Użytkownik nie aktywny")
+        return super(UserLoginForm, self).clean(*args, **kwargs)
+
+
+class UserRegisterForm(forms.ModelForm):
+    #Formularz rejestracji
+    email = forms.EmailField(label='Adres email', widget=forms.EmailInput(attrs={'class': 'form-control'}))
+    password1 = forms.CharField(label='Hasło', widget=forms.PasswordInput(attrs={'class': 'form-control'}))
+    password2 = forms.CharField(label='Powtórz hasło', widget=forms.PasswordInput(attrs={'class': 'form-control'}))
+
+    class Meta:
+        model = User
+        fields = [
+            'email',
+            'password1',
+            'password2',
+        ]
+        # labels = {
+        #     'pesel': 'Numer Pesel',
+        #     'imie': 'Imię',
+        #     'nazwisko': 'Nazwisko'
+        # }
+        #
+        # widgets = {
+        #     'pesel': forms.NumberInput(attrs={'class': 'form-control'}),
+        #     'imie': forms.TextInput(attrs={'class': 'form-control'}),
+        #     'nazwisko': forms.TextInput(attrs={'class': 'form-control'}),
+        # }
+
+    def clean_password2(self):
+        password1 = self.cleaned_data.get("password1")
+        password2 = self.cleaned_data.get("password2")
+        if password1 and password2 and password1 != password2:
+            raise forms.ValidationError("Hasła nie pasują!")
+        return password2
+
+    def clean_pesel(self):
+        pesel = self.cleaned_data.get("pesel")
+        if len(str(pesel)) != 11:
+            raise forms.ValidationError("Pesel musi zawierać 11 cyfr!")
+        return pesel
