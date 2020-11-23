@@ -1,0 +1,69 @@
+{% extends 'base_panel.html' %}
+{% block head %}
+    <title>Samochody</title>
+{% endblock head %}
+
+{% block title %}
+    Zarządzaj samochodami
+{% endblock title %}
+
+{% block content %}
+<div class="text-center">
+    <a href="{{ url }}/dodaj" class="btn btn-success btn-lg" role="button">Dodaj nowy element</a></div><br>
+
+    {% if samochody.object_list %}
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Nazwa</th>
+                <th scope="col">Edytuj</th>
+                <th scope="col">Usuń</th>
+            </tr>
+            </thead>
+            <tbody>
+
+            {% for samochod in samochody.object_list %}
+                <tr>
+                    <th scope="row">{{ forloop.counter }}</th>
+                    <td>{{ samochod }}</td>
+                    <td><a href="{{ url }}/edytuj/{{ samochod.pk }}" class="btn btn-primary" role="button">Edytuj</a></td>
+                    <td><a href="{{ url }}/usun/{{ samochod.pk }}" class="btn btn-danger" role="button">Usuń</a></td>
+                </tr>
+            {% endfor %}
+
+            </tbody>
+        </table>
+
+ {% if samochody.has_other_pages %}
+  <ul class="pagination">
+    {% if samochody.has_previous %}
+      <li><a href="?page={{ samochody.previous_page_number }}">&laquo;</a></li>
+    {% else %}
+      <li class="disabled"><span>&laquo;</span></li>
+    {% endif %}
+    {% for i in samochody.paginator.page_range %}
+      {% if samochody.number == i %}
+        <li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
+      {% else %}
+        <li><a href="?page={{ i }}">{{ i }}</a></li>
+      {% endif %}
+    {% endfor %}
+    {% if samochody.has_next %}
+      <li><a href="?page={{ samochody.next_page_number }}">&raquo;</a></li>
+    {% else %}
+      <li class="disabled"><span>&raquo;</span></li>
+    {% endif %}
+  </ul>
+{% endif %}
+
+
+
+
+    {% else %}
+        <div class="alert alert-info">
+            <strong>Uwaga!</strong> Brak elementów do wyświetlenia
+        </div>
+    {% endif %}
+
+{% endblock %}

@@ -119,6 +119,23 @@ class Rezerwacja(models.Model):
     samochod = models.ForeignKey(Samochod, on_delete=models.RESTRICT, null=False)
     uzytkownik = models.ForeignKey(Uzytkownik, on_delete=models.CASCADE)
 
+    def get_czas_trwania(self):
+        return self.data_do - self.data_od
+
+    def get_koszt(self):
+        liczba = self.get_czas_trwania()
+        if liczba.days < 1:
+            liczba = int(round(liczba.seconds/3600))
+            koszt = liczba * self.samochod.cena_godzina
+        else:
+            if liczba.seconds/3600 > 3:
+                liczba = liczba.days + 1
+            else:
+                liczba = liczba.days
+            koszt = liczba * self.samochod.cena_dzien
+        koszt += self.ubezpieczenie.cena
+        return koszt
+
     def __str__(self):
         return '%s %s %s' % (self.uzytkownik, self.samochod, self.pk)
 
@@ -131,6 +148,7 @@ class Dokument(models.Model):
         FAKTURA = 'FV', _('FAKTURA')
         RACHUNEK = 'RA', _('RACHUNEK')
         POTWIERDZENIE = 'PO', _('POTWIERDZENIE')
+
 
     kwota = models.DecimalField(max_digits=10, decimal_places=2, null=False)
     typ = models.CharField(max_length=2, choices=DokumentTyp.choices, default=DokumentTyp.POTWIERDZENIE, null=False)

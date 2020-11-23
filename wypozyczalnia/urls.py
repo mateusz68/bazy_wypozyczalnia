@@ -6,5 +6,6 @@ from . import views
 app_name = 'wypozyczalnia'
 urlpatterns = [
     path('', views.index, name='index'),
+    path('brak_dostepu', views.brak_dostepu, name='brak_dostepu')
 
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

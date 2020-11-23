@@ -6,17 +6,50 @@ from . import views
 app_name = 'panelpracownika'
 urlpatterns = [
     # path('', views.home, name='home'),
-    #Typ Ubezpieczenia
+    # Rezerwacje
+    path('rezerwacje', views.rezerwacje_wszystkie, name="rezerwacje_wszystkie"),
+    path('rezerwacje/nowe', views.rezerwacje_nowe, name="rezerwacje_nowe"),
+    path('rezerwacje/dodaj', views.rezerwacja_dodaj, name="rezerwacja_dodaj"),
+    path('rezerwacje/szczegoly/<int:pk>', views.rezerwacja_szczegoly, name="rezerwacja_szczegoly"),
+    path('rezerwacje/zmien_status/<int:pk>', views.rezerwacja_zmien_stan, name="rezerwacja_zmien_stan"),
+    path('rezerwacje/usun/<int:pk>', views.rezerwacje_usun, name="rezerwacje_usun"),
+    path('rezerwacje/test/<int:pk>', views.dodaj_platnosc_rezerwacja, name="dodaj_platnosc_rezerwacja"),
+    # Modele Samochodów
+    path('samochod', views.samochod, name="samochod"),
+    path('samochod/dodaj', views.samochod_dodaj, name="samochod_dodaj"),
+    path('samochod/edytuj/<int:pk>', views.samochod_edytuj, name="samochod_edytuj"),
+    path('samochod/usun/<int:pk>', views.samochod_usun, name="samochod_usun"),
+    # Typ Ubezpieczenia
     path('typ_ubezpieczenia', views.typ_ubezpieczenia, name="typ_ubezpieczenia"),
     path('typ_ubezpieczenia/dodaj', views.typ_ubezpieczenia_dodaj, name="typ_ubezpieczenia_dodaj"),
     path('typ_ubezpieczenia/edytuj/<int:pk>', views.typ_ubezpieczenia_edytuj, name="typ_ubezpieczenia_edytuj"),
     path('typ_ubezpieczenia/usun/<int:pk>', views.typ_ubezpieczenia_usun, name="typ_ubezpieczenia_usun"),
-    #Modele Samochodów
+    # Ubezpieczenie
+    path('ubezpieczenie', views.ubezpieczenie, name="ubezpieczenie"),
+    path('ubezpieczenie/dodaj', views.ubezpieczenie_dodaj, name="ubezpieczenie_dodaj"),
+    path('ubezpieczenie/edytuj/<int:pk>', views.ubezpieczenie_edytuj, name="ubezpieczenie_edytuj"),
+    path('ubezpieczenie/usun/<int:pk>', views.ubezpieczenie_usun, name="ubezpieczenie_usun"),
+    # Dodatkowe Opłaty
+    path('dodatkowe_oplaty', views.dodatkowe_oplaty, name="dodatkowe_oplaty"),
+    path('dodatkowe_oplaty/dodaj', views.dodatkowe_oplaty_dodaj, name="dodatkowe_oplaty_dodaj"),
+    path('dodatkowe_oplaty/edytuj/<int:pk>', views.dodatkowe_oplaty_edytuj, name="dodatkowe_oplaty_edytuj"),
+    path('dodatkowe_oplaty/usun/<int:pk>', views.dodatkowe_oplaty_usun, name="dodatkowe_oplaty_usun"),
+    # Dokument
+    path('dokumenty', views.dokumenty, name="dokumenty"),
+    path('dokumenty/dodaj', views.dokumenty_dodaj, name="dokumenty_dodaj"),
+    path('dokumenty/edytuj/<int:pk>', views.dokumenty_edytuj, name="dokumenty_edytuj"),
+    path('dokumenty/usun/<int:pk>', views.dokumenty_usun, name="dokumenty_usun"),
+    # Platnosc
+    path('platnosc', views.platnosc, name="platnosc"),
+    path('platnosc/dodaj', views.platnosc_dodaj, name="platnosc_dodaj"),
+    path('platnosc/edytuj/<int:pk>', views.platnosc_edytuj, name="platnosc_edytuj"),
+    path('platnosc/usun/<int:pk>', views.platnosc_usun, name="platnosc_usun"),
+    # Modele Samochodów
     path('model', views.model, name="model"),
-    path('model/dodaj', views.model_dodaj, name="dodaj_model"),
-    path('model/edytuj/<int:pk>', views.model_edytuj, name="edytuj_model"),
-    path('model/usun/<int:pk>', views.model_usun, name="usun_model"),
-    #Marki samochodów
+    path('model/dodaj', views.model_dodaj, name="model_dodaj"),
+    path('model/edytuj/<int:pk>', views.model_edytuj, name="model_edytuj"),
+    path('model/usun/<int:pk>', views.model_usun, name="model_usun"),
+    # Marki samochodów
     path('marka', views.marka, name="marka"),
     path('marka/dodaj', views.marka_dodaj, name="marka_dodaj"),
     path('marka/edytuj/<int:pk>', views.marka_edytuj, name="marka_edytuj"),
