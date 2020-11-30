@@ -68,6 +68,7 @@ class Samochod(models.Model):
     cena_godzina = models.DecimalField(max_digits=10, decimal_places=2, null=False)
     cena_dzien = models.DecimalField(max_digits=10, decimal_places=2, null=False)
     kaucja = models.DecimalField(max_digits=10, decimal_places=2, null=False)
+    zdjecie = models.ImageField(upload_to='uploads/%Y/%m')
     model = models.ForeignKey(SamochodModel, on_delete=models.CASCADE)
     kategoria = models.ForeignKey(SamochodKategoria, on_delete=models.RESTRICT, null=False)
     silnik = models.ForeignKey(SamochodSilnik, on_delete=models.RESTRICT, null=False)
@@ -75,7 +76,7 @@ class Samochod(models.Model):
     status_samochodu = models.CharField(max_length=2, choices=StatusSamochod.choices, default=StatusSamochod.DOSTEPNY, null=False)
 
     def __str__(self):
-        return '%s %s (%s)' % (self.model.marka, self.model.nazwa, self.numer_rejestracyjny)
+        return '%s %s (%s) [Status: %s]' % (self.model.marka, self.model.nazwa, self.numer_rejestracyjny, self.get_status_samochodu_display())
 
     class Meta:
         verbose_name_plural = 'Samochody'
@@ -137,7 +138,7 @@ class Rezerwacja(models.Model):
         return koszt
 
     def __str__(self):
-        return '%s %s %s' % (self.uzytkownik, self.samochod, self.pk)
+        return '%s %s %s [Status: %s]' % (self.uzytkownik, self.samochod, self.pk, self.get_status_rezerwacji_display())
 
     class Meta:
         verbose_name_plural = 'Rezerwacje'
@@ -149,13 +150,12 @@ class Dokument(models.Model):
         RACHUNEK = 'RA', _('RACHUNEK')
         POTWIERDZENIE = 'PO', _('POTWIERDZENIE')
 
-
     kwota = models.DecimalField(max_digits=10, decimal_places=2, null=False)
     typ = models.CharField(max_length=2, choices=DokumentTyp.choices, default=DokumentTyp.POTWIERDZENIE, null=False)
     rezerwacja = models.ForeignKey(Rezerwacja, on_delete=models.CASCADE)
 
     def __str__(self):
-        return '%s %s' %(self.typ, self.rezerwacja.id)
+        return '%s %s' %(self.get_typ_display(), self.rezerwacja.id)
 
     class Meta:
         verbose_name_plural = 'Dokumenty'

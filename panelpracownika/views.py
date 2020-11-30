@@ -1,5 +1,5 @@
 from django.contrib.auth.decorators import user_passes_test, login_required
-from django.http import Http404
+from django.http import Http404, HttpResponseBadRequest
 from django.shortcuts import render, get_object_or_404, redirect
 
 from accounts.models import Uzytkownik
@@ -13,20 +13,26 @@ def czy_pracownik(user):
         return True
     return False
 
+def test(request, pk=None):
+    print(request.GET['id'])
+    return  render(request, 'form_test.html', {'element': pk})
+
 
 @login_required()
 @user_passes_test(czy_pracownik, login_url='wypozyczalnia:brak_dostepu')
-def dodaj_platnosc_rezerwacja(request, pk=None):
-    platnosc = Platnosc.objects.filter(pk=pk)
+def dodaj_platnosc_rezerwacja(request):
+    pk = request.GET.get('id')
+    if pk is None:
+        return redirect('panelpracownika:rezerwacje_wszystkie')
     if request.method == 'POST':
-        form = CustomForm(request.POST, key=pk)
+        form = DodajPlatnoscZamownie(request.POST, key=pk)
         if form.is_valid():
             form.save()
             return redirect('panelpracownika:rezerwacje_wszystkie')
     else:
-        form = CustomForm(key=pk)
-    return render(request, 'edytuj_form.html',
-                  {'form': form, 'title': "Dodaj nową płatność", 'element': platnosc, 'target': 'panelpracownika:dodaj_platnosc_rezerwacja'})
+        form = DodajPlatnoscZamownie(key=pk)
+    return render(request, 'dodaj_form.html',
+                  {'form': form, 'title': "Dodaj płatność do rezerwacji", 'target': 'panelpracownika:dodaj_platnosc_rezerwacja'})
 
 
 @login_required()
@@ -112,7 +118,7 @@ def rezerwacja_dodaj(request):
         form = RezerwacjaForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('panelpracownika:rezerwacja')
+            return redirect('panelpracownika:rezerwacje_wszystkie')
     else:
         form = RezerwacjaForm()
     return render(request, 'dodaj_form.html', {'form': form, 'title': "Dodaj nową rezerwację", 'target': 'panelpracownika:rezerwacja_dodaj'})

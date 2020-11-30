@@ -13,7 +13,8 @@ urlpatterns = [
     path('rezerwacje/szczegoly/<int:pk>', views.rezerwacja_szczegoly, name="rezerwacja_szczegoly"),
     path('rezerwacje/zmien_status/<int:pk>', views.rezerwacja_zmien_stan, name="rezerwacja_zmien_stan"),
     path('rezerwacje/usun/<int:pk>', views.rezerwacje_usun, name="rezerwacje_usun"),
-    path('rezerwacje/test/<int:pk>', views.dodaj_platnosc_rezerwacja, name="dodaj_platnosc_rezerwacja"),
+    path('rezerwacje/dodaj_platnosc', views.dodaj_platnosc_rezerwacja, name="dodaj_platnosc_rezerwacja"),
+    path('rezerwacje/test/<int:pk>', views.test, name="test"),
     # Modele Samochodów
     path('samochod', views.samochod, name="samochod"),
     path('samochod/dodaj', views.samochod_dodaj, name="samochod_dodaj"),

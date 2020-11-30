@@ -3,11 +3,10 @@ from django.forms import ModelForm
 from wypozyczalnia.models import *
 
 
-class CustomForm(ModelForm):
+class DodajPlatnoscZamownie(ModelForm):
 
     def __init__(self, key, *args, **kwargs):
-        super(CustomForm, self).__init__(*args, **kwargs)
-        print(key)
+        super(DodajPlatnoscZamownie, self).__init__(*args, **kwargs)
         dokumenty = Dokument.objects.filter(rezerwacja_id=key)
         self.fields['dokument'] = forms.ChoiceField(choices=( (x.id, x) for x in dokumenty), widget=forms.Select(attrs={'class' : 'form-control'}))
 
@@ -23,25 +22,47 @@ class CustomForm(ModelForm):
 
 
 class RezerwacjaForm(ModelForm):
+    typ_ubezpieczenie = forms.Select()
+    def __init__(self, *args, **kwargs):
+        super(RezerwacjaForm, self).__init__(*args, **kwargs)
+        typy = TypUbezpieczenia.objects.all()
+        self.fields['typ_ubezpieczenie'] = forms.ChoiceField(choices=( (x.id, x) for x in typy), widget=forms.Select(attrs={'class' : 'form-control'}))
+
     class Meta:
         model = Rezerwacja
-        fields = ['data_od', 'data_do', 'uwagi', 'ubezpieczenie', 'status_rezerwacji', 'samochod', 'uzytkownik']
+        fields = ['data_od', 'data_do', 'uwagi', 'status_rezerwacji', 'samochod', 'uzytkownik']
         widgets = {
-            'data_od': forms.DateTimeInput(attrs={'class': 'form-control'}),
-            'data_do': forms.DateTimeInput(attrs={'class': 'form-control'}),
+            'data_od': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
+            'data_do': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
             'uwagi': forms.TextInput(attrs={'class': 'form-control'}),
-            'ubezpieczenie': forms.Select(attrs={'class': 'form-control'}),
+            # 'ubezpieczenie': forms.Select(attrs={'class': 'form-control'}),
             'status_rezerwacji': forms.Select(attrs={'class': 'form-control'}),
             'samochod': forms.Select(attrs={'class': 'form-control'}),
             'uzytkownik': forms.Select(attrs={'class': 'form-control'}),
         }
 
+    def clean(self):
+        cleaned_data = super().clean()
+        data_do = cleaned_data.get('data_do')
+        data_od = cleaned_data.get('data_od')
+        if data_od > data_do:
+            raise forms.ValidationError({'data_do': 'Błędny zakres dat. Data zakończenia rezerwacji musi być większa od daty rozpoczecia rezerwacji!'})
+        samochod = cleaned_data.get('samochod')
+        temp = Rezerwacja.objects.filter(samochod_id=samochod.id, data_do__range=(data_od, data_do), data_od__range=(data_od, data_do))
+        if len(temp) != 0:
+            raise forms.ValidationError('Błędny zakres dat. Inne wypożyczenie jest już w tym przedziale!')
+        return cleaned_data
 
-
-class RezerwacjaDeleteForm(ModelForm):
-    class Meta:
-        model = Rezerwacja
-        fields = []
+    def save(self, commit=True):
+        m = super(RezerwacjaForm, self).save(commit=False)
+        # do custom stuff
+        if m.ubezpieczenie_id is None:
+            u = Ubezpieczenie(typ_id=self.cleaned_data.get('typ_ubezpieczenie'), cena=100)
+            u.save()
+            m.ubezpieczenie_id = u.pk
+        if commit:
+            m.save()
+        return m
 
 
 class DokumentForm(ModelForm):
@@ -60,6 +81,11 @@ class DokumentDeleteForm(ModelForm):
         model = Dokument
         fields = []
 
+
+class RezerwacjaDeleteForm(ModelForm):
+    class Meta:
+        model = Rezerwacja
+        fields = []
 
 class DodatkoweOplatyForm(ModelForm):
     class Meta:
@@ -221,7 +247,7 @@ class SkrzyniaSamochodDeleteForm(ModelForm):
 class SamochodForm(ModelForm):
     class Meta:
         model = Samochod
-        fields = ['numer_rejestracyjny', 'kolor', 'pojemnosc_silnika', 'moc_silnika', 'cena_godzina', 'cena_dzien', 'kaucja', 'model', 'kategoria', 'silnik', 'skrzynia', 'status_samochodu']
+        fields = ['numer_rejestracyjny', 'zdjecie', 'kolor', 'pojemnosc_silnika', 'moc_silnika', 'cena_godzina', 'cena_dzien', 'kaucja', 'model', 'kategoria', 'silnik', 'skrzynia', 'status_samochodu']
         widgets = {
             'numer_rejestracyjny': forms.TextInput(attrs={'class': 'form-control'}),
             'kolor': forms.TextInput(attrs={'class': 'form-control'}),
@@ -235,6 +261,7 @@ class SamochodForm(ModelForm):
             'silnik': forms.Select(attrs={'class': 'form-control'}),
             'skrzynia': forms.Select(attrs={'class': 'form-control'}),
             'status_samochodu': forms.Select(attrs={'class': 'form-control'}),
+
         }
 
 

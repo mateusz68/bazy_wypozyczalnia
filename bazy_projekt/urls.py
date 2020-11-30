@@ -21,4 +21,5 @@ urlpatterns = [
     path('accounts/', include('accounts.urls')),
     path('', include('wypozyczalnia.urls')),
     path('panel_pracownika/', include('panelpracownika.urls')),
+    path('panel_uzytkownika/', include('paneluzytkownika.urls'))
 ]

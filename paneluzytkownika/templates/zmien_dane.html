@@ -1,0 +1,31 @@
+{% extends 'base_panel_uzyt.html' %}
+{% block head %}
+    <title>Edycja danych użytkownika</title>
+{% endblock head %}
+
+{% block content %}
+    <h1 class="text-center">Formularz edycji danych osobowych.</h1>
+
+    <form action="{% url target %}" method="post">
+        {% csrf_token %}
+        {% for field in form %}
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label" for="{{ field.name }}">{{ field.label }}:</label>
+                <div class="col-sm-10">
+                    {{ field }}
+                </div>
+            </div>
+
+            {% for error in field.errors %}
+                <div class="alert alert-danger">
+                    <strong>Uwaga!</strong> {{ error }}
+                </div>
+            {% endfor %}
+
+        {% endfor %}
+        <div class="col text-center">
+            <button type="submit" class="btn btn-success btn-lg" >Zapisz</button>
+            <a href="#" onclick="history.go(-1)" class="btn btn-danger btn-lg" role="button">Anuluj</a>
+        </div>
+    </form>
+{% endblock %}

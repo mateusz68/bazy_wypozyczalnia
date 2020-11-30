@@ -1,49 +1,19 @@
-{% extends 'base_panel.html' %}
+{% extends 'base_panel_uzyt.html' %}
 {% block head %}
-    <title>Rezerwacje wszystkie</title>
+    <title>Moje Rezerwacje</title>
 {% endblock head %}
 
-{% block title %}
-    Rezerwacje wszystkie
-{% endblock title %}
-
 {% block content %}
-    <div class="text-center">
-        <a href="{{ url }}/dodaj" class="btn btn-success btn-lg" role="button">Dodaj nową rezerwację</a></div><br>
-    <nav class="navbar navbar-expand-sm bg-light justify-content-center">
-        <ul class="navbar-nav">
-            <li class="nav-item">
-                <a class="nav-link disabled" href="/">[Wszystkie Rezerwacje]</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{{ url }}/nowe">[Nowe]</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">[Zweryfikowane]</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">[W trakcie]</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">[Zakończone]</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">[Anulowane]</a>
-            </li>
-        </ul>
-    </nav>
+    <h1 class="text-center m-3">Moje Rezerwacje</h1>
 
     {% if elementy.object_list %}
-        <table class="table table-striped table-responsive">
+        <table class="table table-striped table-responsive-xl text-center">
             <thead>
             <tr>
                 <th scope="col">#</th>
                 <th scope="col">Nazwa</th>
-                <th scope="col">Edytuj</th>
-                <th scope="col">Dodaj Płatność</th>
-                <th scope="col">Zmień status</th>
+                <th scope="col">Stan</th>
                 <th scope="col">Szczegóły</th>
-                <th scope="col">Usuń</th>
             </tr>
             </thead>
             <tbody>
@@ -51,12 +21,9 @@
             {% for element in elementy.object_list %}
                 <tr>
                     <th scope="row">{{ forloop.counter }}</th>
-                    <td>{{ element }}</td>
-                    <td><a href="{{ url }}/edytuj/{{ element.pk }}" class="btn btn-primary" role="button">Edytuj</a></td>
-                    <td><a href="rezerwacje/dodaj_platnosc?id={{ element.pk }}" class="btn btn-warning" role="button">Dodaj Płatność</a></td>
-                    <td><a href="rezerwacje/zmien_status/{{ element.pk }}" class="btn btn-info" role="button">Zmień status</a></td>
+                    <td>{{ element.samochod.model }} {{ element.data_od }} - {{ element.data_do }}</td>
+                    <td>{{ element.get_status_rezerwacji_display }}</td>
                     <td><a href="{{ url }}/szczegoly/{{ element.pk }}" class="btn btn-primary" role="button">Szczegóły</a></td>
-                    <td><a href="{{ url }}/usun/{{ element.pk }}" class="btn btn-danger" role="button">Usuń</a></td>
                 </tr>
             {% endfor %}
 

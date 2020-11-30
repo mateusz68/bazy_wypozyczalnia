@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block head %}
+    <title>Strona Główna</title>
+{% endblock head %}
+
+{% block content %}
+    <script src="{% static "js/fullcalendar/main.js" %}"></script>
+    <link href="{% static "js/fullcalendar/main.css" %}" rel='stylesheet' />
+    <link href='https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.13.1/css/all.css' rel='stylesheet'>
+    {#      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>#}
+    {#    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>#}
+
+    <script>
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var calendarEl = document.getElementById('calendar');
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+
+                locale: 'pl',
+                themeSystem: 'bootstrap',
+                initialView: 'dayGridMonth',
+                events: [
+                    {% for rezerwacja in rezerwacje %}
+                        {
+                            title: "Rezerwacja",
+                            start: "{{ rezerwacja.data_od.isoformat }}",
+                            end: "{{ rezerwacja.data_do.isoformat}}",
+                        },
+
+                    {% endfor %}
+                ],
+                displayEventEnd: true,
+                displayEventTime: true,
+                eventTimeFormat: {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    meridiem: false
+                },
+                buttonText: {
+                    today:    'dzisiaj',
+                    month:    'miesiąc',
+                    week:     'tydzień',
+                    day:      'dzień',
+                    list:     'lista'
+                }
+
+            });
+            calendar.render();
+        });
+
+    </script>
+
+    <div class="text-center"><h1>{{ samochod.model }}</h1></div>
+    <div class="container text-center">
+        <img src="{{ samochod.zdjecie.url }}" class="img-fluid m-2" alt="{{ samochod.model }}">
+        <div class="row">
+
+            <div class="col-sm-6">
+                <h4>Dane techniczne</h4>
+                <table class="table table-bordered">
+                    <tbody>
+                    <tr>
+                        <th scope="row">Kolor:</th>
+                        <td>{{ samochod.kolor }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Pojemność silnika:</th>
+                        <td>{{ samochod.pojemnosc_silnika }} cm3</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">>Moc:</th>
+                        <td>{{ samochod.moc_silnika }} KM</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Silnik:</th>
+                        <td>{{ samochod.silnik }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Skrzynia Biegów:</th>
+                        <td>{{ samochod.skrzynia }}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-sm-6">
+                <h4>Cennik</h4>
+                <table class="table table-bordered">
+                    <tbody>
+                    <tr>
+                        <th scope="row">Koszt dzień:</th>
+                        <td>{{ samochod.cena_dzien }} PLN/dzień</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Koszt godzina:</th>
+                        <td>{{ samochod.cena_godzina }} PLN/h</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Kaucja:</th>
+                        <td>{{ samochod.kaucja }} PLN</td>
+                    </tr>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <h2 class="text-center m-3">Kalendarz dostępności samochodu:</h2>
+    <div id='calendar'></div>
+    <div class="text-center m-4">
+        <a href="" class="btn btn-success btn-lg" role="button">Zarezerwuj</a>
+        <a href="#" onclick="history.go(-1)" class="btn btn-warning btn-lg" role="button">Cofnij</a>
+    </div>
+
+{% endblock %}

@@ -1,14 +1,10 @@
-{% extends 'base_panel.html' %}
+{% extends 'base_panel_uzyt.html' %}
 {% block head %}
     <title>Szczegóły zamówienia</title>
 {% endblock head %}
 
-{% block title %}
-    Szczegóły zamówienia nr. {{ rezerwacja.pk }}
-{% endblock title %}
-
-
 {% block content %}
+    <h1 class="text-center m-3">Szczegóły rezerwacji nr. {{ rezerwacja.pk }}</h1>
 <h3>Szczegóły:</h3>
 <table class="table table-striped">
             <thead>
@@ -36,18 +32,18 @@
                     <td>{{ rezerwacja.samochod }}</td>
                 </tr>
             <tr>
-                    <th scope="row">Użytkownik</th>
-                    <td>{{ rezerwacja.uzytkownik }}</td>
-                </tr>
-            <tr>
                     <th scope="row">Status</th>
-                    <td>{{ rezerwacja.status_rezerwacji }}</td>
+                    <td>{{ rezerwacja.get_status_rezerwacji_display }}</td>
                 </tr>
             </tbody>
         </table>
-    <div class="text-center">
-    <a href="/panel_pracownika/rezerwacje/edytuj/{{ rezerwacja.id }}" class="btn btn-info btn-lg" role="button">Edytuj Rezerwacje</a>
+
+    {% if rezerwacja.status_rezerwacji == 'WE' or rezerwacja.status_rezerwacji == 'ZA' %}
+        <div class="text-center">
+    <a href="/panel_pracownika/rezerwacje/edytuj/{{ rezerwacja.id }}" class="btn btn-warning btn-lg" role="button">Anuluj Rezerwacje</a>
     </div>
+    {% endif %}
+
 
     <h3>Ubezpieczenie:</h3>
 <table class="table table-striped">
@@ -68,12 +64,8 @@
             </tbody>
         </table>
 
-    <div class="text-center">
-    <a href="/panel_pracownika/ubezpieczenie/edytuj/{{ rezerwacja.ubezpieczenie_id }}" class="btn btn-info btn-lg" role="button">Edytuj Ubezpieczenie</a>
-    </div><br><br>
-
     <h3>Dokumenty:</h3>
-    <table class="table table-striped text-center">
+    <table class="table table-striped text-center mb-4">
             <thead>
             <tr>
                 <th scope="col">Wysokość kaucji</th>
@@ -114,8 +106,7 @@
     {% endfor %}
     <br>
 <div class="text-center">
-<a href="/panel_pracownika/rezerwacje/dodaj_platnosc?id={{ rezerwacja.id }}" class="btn btn-success btn-lg" role="button">Dodaj Płatność</a>
-    <br><br>
-    <a href="/panel_pracownika/rezerwacje" class="btn btn-warning btn-lg" role="button">Wróć do listy rezerwacji</a>
-    </div><br><br>
+
+    <a href="/panel_uzytkownika/rezerwacje" class="btn btn-warning btn-lg" role="button">Wróć do listy rezerwacji</a>
+    </div>
 {% endblock %}

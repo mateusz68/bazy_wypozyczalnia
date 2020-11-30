@@ -1,0 +1,13 @@
+{% extends 'base_panel_uzyt.html' %}
+{% block head %}
+
+{% endblock %}
+
+{% block content %}
+<form method="post">
+  {% csrf_token %}
+  {{ form }}
+  <button type="submit" class="btn-success">Zmień Hasło</button>
+</form>
+    {{ form.old_password.help_text }}
+{% endblock %}
