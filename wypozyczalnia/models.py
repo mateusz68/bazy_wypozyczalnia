@@ -147,7 +147,6 @@ class Rezerwacja(models.Model):
 class Dokument(models.Model):
     class DokumentTyp(models.TextChoices):
         FAKTURA = 'FV', _('FAKTURA')
-        RACHUNEK = 'RA', _('RACHUNEK')
         POTWIERDZENIE = 'PO', _('POTWIERDZENIE')
 
     kwota = models.DecimalField(max_digits=10, decimal_places=2, null=False)

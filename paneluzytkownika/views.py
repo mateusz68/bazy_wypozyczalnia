@@ -1,8 +1,11 @@
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
+from django.template.loader import get_template
+from .utils import render_to_pdf
 from accounts.models import Uzytkownik
 from .forms import *
 
@@ -65,6 +68,7 @@ def lista_rezerwacji_uzytk(request):
     return render(request, 'lista_rezerwacji.html',
                   {'elementy': rezerwacje, 'url': request.path})
 
+
 def szczegoly_rezerwacji_uztk(request, pk=None):
     rezerwacja = get_object_or_404(Rezerwacja, pk=pk)
     dokumenty = Dokument.objects.filter(rezerwacja_id=pk)
@@ -87,5 +91,17 @@ def szczegoly_rezerwacji_uztk(request, pk=None):
                   {'rezerwacja': rezerwacja, 'dokumenty': dokumenty, 'dokument_platnosc': dokument_platnosc})
 
 
-
-
+def generuj_pdf(request):
+    # template = get_template('pdf/faktura.html')
+    context = {
+        "invoice_id": 1235,
+        "customer_name": "John Cooper",
+        "amount": 1399.99,
+        "today": "Today",
+    }
+    # html = template.render(context)
+    pdf = render_to_pdf('pdf/faktura.html', context)
+    if pdf:
+        return HttpResponse(pdf, content_type='application/pdf')
+    else:
+        return HttpResponse("Error Rendering PDF", status=400)

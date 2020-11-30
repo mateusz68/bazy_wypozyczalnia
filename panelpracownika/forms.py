@@ -1,4 +1,5 @@
 from django import forms
+from django.db.models import Q
 from django.forms import ModelForm
 from wypozyczalnia.models import *
 
@@ -48,7 +49,10 @@ class RezerwacjaForm(ModelForm):
         if data_od > data_do:
             raise forms.ValidationError({'data_do': 'Błędny zakres dat. Data zakończenia rezerwacji musi być większa od daty rozpoczecia rezerwacji!'})
         samochod = cleaned_data.get('samochod')
-        temp = Rezerwacja.objects.filter(samochod_id=samochod.id, data_do__range=(data_od, data_do), data_od__range=(data_od, data_do))
+        # temp = Rezerwacja.objects.filter(samochod_id=samochod.id, data_do__range=(data_od, data_do), data_od__range=(data_od, data_do))
+        temp = Rezerwacja.objects.filter(
+            (Q(data_do__range=(data_od, data_do)) | Q(data_od__range=(data_od, data_do))) & Q(
+                samochod_id=self.samochod_val.id))
         if len(temp) != 0:
             raise forms.ValidationError('Błędny zakres dat. Inne wypożyczenie jest już w tym przedziale!')
         return cleaned_data

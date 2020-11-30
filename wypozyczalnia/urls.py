@@ -12,6 +12,7 @@ urlpatterns = [
     path('samochody/szczegoly/<int:pk>', views.szczczegoly_samochodu, name="szczegoly_samochodu"),
     path('samochody/rezerwuj', views.rezerwuj_samochod, name="rezerwuj_samochod"),
     path('samochody', views.samochody_lista, name="lista_samochody"),
+    path('kontakt', views.kontakt, name="kontakt"),
 
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 

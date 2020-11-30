@@ -53,8 +53,7 @@
     </script>
 
     <h1 class="text-center m-5">Zarezerwuj samochód {{ samochod.model }}</h1><br>
-
-    <form action="{% url target %}" method="post">
+    <form action="" method="post">
         {% csrf_token %}
         {% for field in form %}
             <div class="form-group row">
