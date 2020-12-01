@@ -84,6 +84,7 @@ class Samochod(models.Model):
 
 class TypUbezpieczenia(models.Model):
     variant = models.CharField(max_length=50, null=False)
+    stawka = models.IntegerField(null=False, help_text="Jest to procentowy koszt ubezpieczenia w stosunku do całkowitego kosztu wypożyczenia")
 
     def __str__(self):
         return self.variant
@@ -99,6 +100,9 @@ class Ubezpieczenie(models.Model):
 
     def __str__(self):
         return '%s %s' %(self.typ.variant, self.numer_polisy)
+
+    def get_koszt(self, koszt):
+        return (koszt * self.typ.stawka)/100
 
     class Meta:
         verbose_name_plural = 'Ubezpieczenia'
@@ -137,6 +141,19 @@ class Rezerwacja(models.Model):
         koszt += self.ubezpieczenie.cena
         return koszt
 
+    def calculate_koszt(self):
+        liczba = self.get_czas_trwania()
+        if liczba.days < 1:
+            liczba = int(round(liczba.seconds/3600))
+            koszt = liczba * self.samochod.cena_godzina
+        else:
+            if liczba.seconds/3600 > 3:
+                liczba = liczba.days + 1
+            else:
+                liczba = liczba.days
+            koszt = liczba * self.samochod.cena_dzien
+        return koszt
+
     def __str__(self):
         return '%s %s %s [Status: %s]' % (self.uzytkownik, self.samochod, self.pk, self.get_status_rezerwacji_display())
 
@@ -147,10 +164,10 @@ class Rezerwacja(models.Model):
 class Dokument(models.Model):
     class DokumentTyp(models.TextChoices):
         FAKTURA = 'FV', _('FAKTURA')
-        POTWIERDZENIE = 'PO', _('POTWIERDZENIE')
+        KAUCJA = 'KA', _('KAUCJA')
 
     kwota = models.DecimalField(max_digits=10, decimal_places=2, null=False)
-    typ = models.CharField(max_length=2, choices=DokumentTyp.choices, default=DokumentTyp.POTWIERDZENIE, null=False)
+    typ = models.CharField(max_length=2, choices=DokumentTyp.choices, default=DokumentTyp.FAKTURA, null=False)
     rezerwacja = models.ForeignKey(Rezerwacja, on_delete=models.CASCADE)
 
     def __str__(self):

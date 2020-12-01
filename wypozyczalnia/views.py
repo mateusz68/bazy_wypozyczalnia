@@ -34,49 +34,28 @@ def szczczegoly_samochodu(request, pk=None):
 def rezerwuj_samochod(request):
     uzytkownik = get_object_or_404(Uzytkownik, pk=request.user.id)
     pk = request.GET.get('id')
-    print(request.GET)
-    print(pk)
-    pk = 1
     if pk is None:
         return redirect('wypozyczalnia:index')
     samochod = get_object_or_404(Samochod, pk=pk)
     rezerwacje = Rezerwacja.objects.filter(samochod_id=pk)
-    print("test")
-    print(pk)
-    print(request.method)
-    # if request.method == 'POST':
-    #     form = RezerwacjaUserForm(request.POST, key=pk, user=uzytkownik)
-    #     print("post")
-    #     if form.is_valid():
-    #         form.save()
-    #         print("test")
-    #         return redirect('wypozyczalnia:index')
-    # else:
-    #     form = RezerwacjaUserForm(key=pk, user=uzytkownik)
-    # return render(request, 'rezerwacja_form.html',
-    #               {'form': form, 'samochod': samochod, 'rezerwacje': rezerwacje, 'title': "Dodaj płatność do rezerwacji",
-    #                'target': 'wypozyczalnia:rezerwuj_samochod'})
 
     if request.method == 'POST':
         form = RezerwacjaUserForm(request.POST, key=pk)
-        print("post hej")
         if form.is_valid():
-            # print(form)
-            # form.save()
-            # print("test")
-            temp = form.cleaned_data
             temp_rez = Rezerwacja()
             temp_rez.uzytkownik = uzytkownik
             ubezpieczenie = Ubezpieczenie(cena=100, typ_id=form.cleaned_data.get('typ_ubezpieczenie'))
-            # ubezpieczenie.save()
+            ubezpieczenie.save()
             temp_rez.ubezpieczenie_id = ubezpieczenie.id
             temp_rez.uwagi = form.cleaned_data.get('uwagi')
             temp_rez.data_od = form.cleaned_data.get('data_od')
             temp_rez.data_do = form.cleaned_data.get('data_do')
             temp_rez.samochod_id = samochod.id
-            # temp_rez.save()
-            print(temp)
-            # return redirect('wypozyczalnia:udana_rezerwacja')
+            temp_rez.save()
+            ubezpieczenie.numer_polisy = temp_rez.id
+            ubezpieczenie.cena = ubezpieczenie.get_koszt(temp_rez.calculate_koszt())
+            ubezpieczenie.save()
+            return redirect('wypozyczalnia:udana_rezerwacja')
     else:
 
         form = RezerwacjaUserForm(key=pk)

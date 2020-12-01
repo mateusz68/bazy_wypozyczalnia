@@ -6,6 +6,7 @@ from accounts.models import Uzytkownik
 from wypozyczalnia.models import *
 from panelpracownika.forms import *
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from .utlis import *
 
 
 def czy_pracownik(user):
@@ -24,12 +25,12 @@ def test(request, pk=None):
 def dodaj_platnosc_rezerwacja(request):
     pk = request.GET.get('id')
     if pk is None:
-        return redirect('panelpracownika:rezerwacje_wszystkie')
+        return redirect('panelpracownika:rezerwacje')
     if request.method == 'POST':
         form = DodajPlatnoscZamownie(request.POST, key=pk)
         if form.is_valid():
             form.save()
-            return redirect('panelpracownika:rezerwacje_wszystkie')
+            return redirect('panelpracownika:rezerwacje')
     else:
         form = DodajPlatnoscZamownie(key=pk)
     return render(request, 'dodaj_form.html',
@@ -86,10 +87,44 @@ def rezerwacja_zmien_stan(request, pk=None):
         form = RezerwacjeZmienStatusForm(request.POST, instance=rezerwacja)
         if form.is_valid():
             form.save()
-            return redirect('panelpracownika:rezerwacje_wszystkie')
+            if form.cleaned_data.get("status_rezerwacji") == Rezerwacja.StatusRezerwacji.ZAAKCEPTOWANA:
+                dokument_temp = Dokument.objects.filter(rezerwacja_id=rezerwacja.id, typ=Dokument.DokumentTyp.KAUCJA)
+                print("if zakceptopwana")
+                print(dokument_temp)
+                if len(dokument_temp) == 0:
+                    print("drugi if")
+                    dokument = Dokument(typ=Dokument.DokumentTyp.KAUCJA)
+                    dokument.kwota = rezerwacja.samochod.kaucja
+                    dokument.rezerwacja_id = rezerwacja.id
+                    dokument.save()
+
+            if form.cleaned_data.get("status_rezerwacji") == Rezerwacja.StatusRezerwacji.ZAKONCZONA:
+                dokument_temp = Dokument.objects.filter(rezerwacja_id=rezerwacja.id, typ=Dokument.DokumentTyp.FAKTURA)
+                if(len(dokument_temp) == 0):
+                    dokument = Dokument(typ=Dokument.DokumentTyp.FAKTURA)
+                    dokument.kwota = rezerwacja.get_koszt()
+                    dokument.rezerwacja_id = rezerwacja.id
+                    dokument.save()
+            print(form.cleaned_data.get("status_rezerwacji"))
+            return redirect('panelpracownika:rezerwacje')
     else:
         form = RezerwacjeZmienStatusForm(instance=rezerwacja)
     return render(request, 'edytuj_form.html', {'form': form, 'element': rezerwacja,  'title': "Zmień status rezerwacji", 'target': 'panelpracownika:rezerwacja_zmien_stan'})
+
+
+@login_required()
+@user_passes_test(czy_pracownik, login_url='wypozyczalnia:brak_dostepu')
+def rezerwacja_edytuj(request, pk=None):
+    rezerwacja = get_object_or_404(Rezerwacja, pk=pk)
+    if request.method == 'POST':
+        form = RezerwacjaEditForm(request.POST, instance=rezerwacja, key=rezerwacja.id)
+        if form.is_valid():
+            form.save()
+            calculate_cost(rezerwacja.id)
+            return redirect('panelpracownika:rezerwacje')
+    else:
+        form = RezerwacjaEditForm(instance=rezerwacja, key=rezerwacja.id)
+    return render(request, 'edytuj_form.html', {'form': form,  'element': rezerwacja, 'title': "Edytuj wybraną rezerwację", 'target': 'panelpracownika:rezerwacja_edytuj'})
 
 
 @login_required()
@@ -98,8 +133,15 @@ def rezerwacja_dodaj(request):
     if request.method == 'POST':
         form = RezerwacjaForm(request.POST)
         if form.is_valid():
-            form.save()
-            return redirect('panelpracownika:rezerwacje_wszystkie')
+            rezerwacja = form.save()
+            ubezpieczenie = Ubezpieczenie(cena=100, typ_id=form.cleaned_data.get('typ_ubezpieczenie'))
+            ubezpieczenie.save()
+            rezerwacja.ubezpieczenie_id = ubezpieczenie.id
+            rezerwacja.save()
+            ubezpieczenie.numer_polisy = rezerwacja.id
+            ubezpieczenie.cena = ubezpieczenie.get_koszt(rezerwacja.calculate_koszt())
+            ubezpieczenie.save()
+            return redirect('panelpracownika:rezerwacje')
     else:
         form = RezerwacjaForm()
     return render(request, 'dodaj_form.html', {'form': form, 'title': "Dodaj nową rezerwację", 'target': 'panelpracownika:rezerwacja_dodaj'})
@@ -114,7 +156,7 @@ def rezerwacje_usun(request, pk=None):
         form = DokumentDeleteForm(request.POST, instance=rezerwacje)
         if form.is_valid():
             rezerwacje.delete()
-            return redirect('panelpracownika:rezerwacje_wszystkie')
+            return redirect('panelpracownika:rezerwacje')
     else:
         form = DokumentDeleteForm(instance=rezerwacje)
     return render(request, 'usun_form.html', {'form': form, 'element': rezerwacje, 'title': "Usuń wybraną rezerwację", 'target': 'panelpracownika:rezerwacje_usun'})

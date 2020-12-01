@@ -9,6 +9,7 @@ urlpatterns = [
     # Rezerwacje
     path('rezerwacje', views.rezerwacje, name="rezerwacje"),
     path('rezerwacje/dodaj', views.rezerwacja_dodaj, name="rezerwacja_dodaj"),
+    path('rezerwacje/edytuj/<int:pk>', views.rezerwacja_edytuj, name="rezerwacja_edytuj"),
     path('rezerwacje/szczegoly/<int:pk>', views.rezerwacja_szczegoly, name="rezerwacja_szczegoly"),
     path('rezerwacje/zmien_status/<int:pk>', views.rezerwacja_zmien_stan, name="rezerwacja_zmien_stan"),
     path('rezerwacje/usun/<int:pk>', views.rezerwacje_usun, name="rezerwacje_usun"),

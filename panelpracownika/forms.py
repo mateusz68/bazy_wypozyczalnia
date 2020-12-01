@@ -22,6 +22,41 @@ class DodajPlatnoscZamownie(ModelForm):
         }
 
 
+class RezerwacjaEditForm(ModelForm):
+    def __init__(self, *args, key, **kwargs):
+        super(RezerwacjaEditForm, self).__init__(*args, **kwargs)
+        self.key = key
+
+    class Meta:
+        model = Rezerwacja
+        fields = ['data_od', 'data_do', 'uwagi', 'samochod', 'uzytkownik']
+        widgets = {
+            'data_od': forms.DateTimeInput(attrs={'class': 'form-control'}),
+            'data_do': forms.DateTimeInput(attrs={'class': 'form-control'}),
+            'uwagi': forms.TextInput(attrs={'class': 'form-control'}),
+            'samochod': forms.Select(attrs={'class': 'form-control'}),
+            'uzytkownik': forms.Select(attrs={'class': 'form-control'}),
+        }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        data_do = cleaned_data.get('data_do')
+
+        data_od = cleaned_data.get('data_od')
+        if data_od > data_do:
+            raise forms.ValidationError({'data_do': 'Błędny zakres dat. Data zakończenia rezerwacji musi być większa od daty rozpoczecia rezerwacji!'})
+        samochod = cleaned_data.get('samochod')
+        print(samochod)
+        temp = Rezerwacja.objects.filter(
+            (Q(data_do__range=(data_od, data_do)) | Q(data_od__range=(data_od, data_do))) & Q(
+                samochod_id=samochod.id) & ~Q(pk=self.key))
+        print(temp)
+        if len(temp) != 0:
+            raise forms.ValidationError({'data_do': 'Błędny zakres dat. Inne wypożyczenie jest już w tym przedziale!'})
+        print(data_do)
+        return cleaned_data
+
+
 class RezerwacjaForm(ModelForm):
     typ_ubezpieczenie = forms.Select()
     def __init__(self, *args, **kwargs):
@@ -31,13 +66,13 @@ class RezerwacjaForm(ModelForm):
 
     class Meta:
         model = Rezerwacja
-        fields = ['data_od', 'data_do', 'uwagi', 'status_rezerwacji', 'samochod', 'uzytkownik']
+        fields = ['data_od', 'data_do', 'uwagi', 'samochod', 'uzytkownik']
         widgets = {
             'data_od': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
             'data_do': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
             'uwagi': forms.TextInput(attrs={'class': 'form-control'}),
             # 'ubezpieczenie': forms.Select(attrs={'class': 'form-control'}),
-            'status_rezerwacji': forms.Select(attrs={'class': 'form-control'}),
+            # 'status_rezerwacji': forms.Select(attrs={'class': 'form-control'}),
             'samochod': forms.Select(attrs={'class': 'form-control'}),
             'uzytkownik': forms.Select(attrs={'class': 'form-control'}),
         }
@@ -52,21 +87,10 @@ class RezerwacjaForm(ModelForm):
         # temp = Rezerwacja.objects.filter(samochod_id=samochod.id, data_do__range=(data_od, data_do), data_od__range=(data_od, data_do))
         temp = Rezerwacja.objects.filter(
             (Q(data_do__range=(data_od, data_do)) | Q(data_od__range=(data_od, data_do))) & Q(
-                samochod_id=self.samochod_val.id))
+                samochod_id=samochod))
         if len(temp) != 0:
-            raise forms.ValidationError('Błędny zakres dat. Inne wypożyczenie jest już w tym przedziale!')
+            raise forms.ValidationError({'data_do': 'Błędny zakres dat. Inne wypożyczenie jest już w tym przedziale!'})
         return cleaned_data
-
-    def save(self, commit=True):
-        m = super(RezerwacjaForm, self).save(commit=False)
-        # do custom stuff
-        if m.ubezpieczenie_id is None:
-            u = Ubezpieczenie(typ_id=self.cleaned_data.get('typ_ubezpieczenie'), cena=100)
-            u.save()
-            m.ubezpieczenie_id = u.pk
-        if commit:
-            m.save()
-        return m
 
 
 class DokumentForm(ModelForm):
@@ -79,6 +103,15 @@ class DokumentForm(ModelForm):
             'rezerwacja': forms.Select(attrs={'class': 'form-control'}),
         }
 
+    def clean(self):
+        cleaned_data = super().clean()
+        rezerwacja = cleaned_data.get('rezerwacja')
+        typ = cleaned_data.get('typ')
+        dokumenty = Dokument.objects.filter(rezerwacja_id=rezerwacja.id, typ=typ)
+        if len(dokumenty) != 0:
+            raise forms.ValidationError({'typ': 'Dokument tego typu został już wygenerowany dla tej rezerwacji!'})
+        return cleaned_data
+
 
 class DokumentDeleteForm(ModelForm):
     class Meta:
@@ -90,6 +123,7 @@ class RezerwacjaDeleteForm(ModelForm):
     class Meta:
         model = Rezerwacja
         fields = []
+
 
 class DodatkoweOplatyForm(ModelForm):
     class Meta:
