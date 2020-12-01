@@ -7,8 +7,7 @@ app_name = 'panelpracownika'
 urlpatterns = [
     # path('', views.home, name='home'),
     # Rezerwacje
-    path('rezerwacje', views.rezerwacje_wszystkie, name="rezerwacje_wszystkie"),
-    path('rezerwacje/nowe', views.rezerwacje_nowe, name="rezerwacje_nowe"),
+    path('rezerwacje', views.rezerwacje, name="rezerwacje"),
     path('rezerwacje/dodaj', views.rezerwacja_dodaj, name="rezerwacja_dodaj"),
     path('rezerwacje/szczegoly/<int:pk>', views.rezerwacja_szczegoly, name="rezerwacja_szczegoly"),
     path('rezerwacje/zmien_status/<int:pk>', views.rezerwacja_zmien_stan, name="rezerwacja_zmien_stan"),

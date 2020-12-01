@@ -11,6 +11,7 @@ urlpatterns = [
     path('brak_dostepu', views.brak_dostepu, name='brak_dostepu'),
     path('samochody/szczegoly/<int:pk>', views.szczczegoly_samochodu, name="szczegoly_samochodu"),
     path('samochody/rezerwuj', views.rezerwuj_samochod, name="rezerwuj_samochod"),
+    path('samochody/rezerwuj/udana', views.udana_rezerwacja, name="udana_rezerwacja"),
     path('samochody', views.samochody_lista, name="lista_samochody"),
     path('kontakt', views.kontakt, name="kontakt"),
 

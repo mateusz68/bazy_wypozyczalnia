@@ -1,7 +1,7 @@
 from django.contrib.auth.decorators import user_passes_test, login_required
 from django.http import Http404, HttpResponseBadRequest
 from django.shortcuts import render, get_object_or_404, redirect
-
+from .filters import RezerwacjaFilter
 from accounts.models import Uzytkownik
 from wypozyczalnia.models import *
 from panelpracownika.forms import *
@@ -12,6 +12,7 @@ def czy_pracownik(user):
     if user.rola == Uzytkownik.RolaUzytkownika.PRACOWNIK or user.rola == Uzytkownik.RolaUzytkownika.ADMINISTRATOR:
         return True
     return False
+
 
 def test(request, pk=None):
     print(request.GET['id'])
@@ -34,13 +35,13 @@ def dodaj_platnosc_rezerwacja(request):
     return render(request, 'dodaj_form.html',
                   {'form': form, 'title': "Dodaj płatność do rezerwacji", 'target': 'panelpracownika:dodaj_platnosc_rezerwacja'})
 
-
 @login_required()
 @user_passes_test(czy_pracownik, login_url='wypozyczalnia:brak_dostepu')
-def rezerwacje_wszystkie(request):
+def rezerwacje(request):
     rezerwacje_lista = Rezerwacja.objects.all().order_by('data_od')
+    rezerwacje_filter = RezerwacjaFilter(request.GET, queryset=rezerwacje_lista)
     page = request.GET.get('page', 1)
-    paginator = Paginator(rezerwacje_lista, 10)
+    paginator = Paginator(rezerwacje_filter.qs, 10)
     try:
         rezerwacje = paginator.page(page)
     except PageNotAnInteger:
@@ -48,28 +49,8 @@ def rezerwacje_wszystkie(request):
     except EmptyPage:
         rezerwacje = paginator.page(paginator.num_pages)
 
-    return render(request, 'rezerwacje_wszystkie.html',
-              {'elementy': rezerwacje, 'url': request.path, 'title': 'Zarządzaj rezerwacjami'})
-
-
-@login_required()
-@user_passes_test(czy_pracownik, login_url='wypozyczalnia:brak_dostepu')
-def rezerwacje_nowe(request):
-    try:
-        rezerwacje_lista = Rezerwacja.objects.filter(status_rezerwacji=Rezerwacja.StatusRezerwacji.WERYFIKACJA).order_by('data_od')
-    except Rezerwacja.DoesNotExist:
-        raise Http404("Błąd")
-    page = request.GET.get('page', 1)
-    paginator = Paginator(rezerwacje_lista, 10)
-    try:
-        rezerwacje = paginator.page(page)
-    except PageNotAnInteger:
-        rezerwacje = paginator.page(1)
-    except EmptyPage:
-        rezerwacje = paginator.page(paginator.num_pages)
-
-    return render(request, 'rezerwacje_nowe.html',
-              {'elementy': rezerwacje, 'url': request.path})
+    return render(request, 'rezerwacje.html',
+              {'filter': rezerwacje_filter, 'elementy': rezerwacje, 'url': request.path, 'title': 'Zarządzaj rezerwacjami'})
 
 
 @login_required()

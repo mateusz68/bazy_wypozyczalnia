@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block head %}
+    <title>Strona Główna</title>
+{% endblock head %}
+
+{% block content %}
+    <div class="text-center">
+<div class="alert alert-success">
+  <strong>Udało się!</strong> Wybrany samochód został zarezerowwany!
+</div>
+    <a href="/" class="btn btn-success btn-lg" role="button">Moje Rezerwacje</a>
+    <a href="/panel_uzytkownika/rezerwacje" class="btn btn-warning btn-lg" role="button">Strona Główna</a>
+    </div>
+{% endblock %}

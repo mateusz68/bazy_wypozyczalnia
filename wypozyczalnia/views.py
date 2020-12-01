@@ -5,6 +5,7 @@ from wypozyczalnia.models import *
 from wypozyczalnia.forms import *
 from django.contrib import messages
 from django.contrib import messages
+from .filters import *
 
 
 def index(request):
@@ -18,6 +19,10 @@ def brak_dostepu(request):
 
 def kontakt(request):
     return render(request, 'kontakt.html')
+
+
+def udana_rezerwacja(request):
+    return render(request, 'udana_rezerwacja.html')
 
 
 def szczczegoly_samochodu(request, pk=None):
@@ -71,9 +76,7 @@ def rezerwuj_samochod(request):
             temp_rez.samochod_id = samochod.id
             # temp_rez.save()
             print(temp)
-            messages.success(request, 'Profile details updated.')
-
-            # return redirect('wypozyczalnia:index')
+            # return redirect('wypozyczalnia:udana_rezerwacja')
     else:
 
         form = RezerwacjaUserForm(key=pk)
@@ -83,9 +86,11 @@ def rezerwuj_samochod(request):
 
 
 def samochody_lista(request):
-    samochody_lista = Samochod.objects.all()
+    samochody_lista = Samochod.objects.filter(status_samochodu=Samochod.StatusSamochod.DOSTEPNY)
+    samochody_filter = SamochodFilter(request.GET, queryset=samochody_lista)
+
     page = request.GET.get('page', 1)
-    paginator = Paginator(samochody_lista, 10)
+    paginator = Paginator(samochody_filter.qs, 10)
     try:
         samochody = paginator.page(page)
     except PageNotAnInteger:
@@ -94,4 +99,5 @@ def samochody_lista(request):
         samochody = paginator.page(paginator.num_pages)
 
     return render(request, 'samochody_list.html',
-                  {'elementy': samochody, 'url': request.path, 'title': 'Zarządzaj rezerwacjami'})
+                  {'filter': samochody_filter, 'elementy': samochody, 'url': request.path, 'title': 'Zarządzaj rezerwacjami'})
+

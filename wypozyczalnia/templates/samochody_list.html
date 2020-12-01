@@ -1,4 +1,7 @@
 {% extends 'base.html' %}
+{% load class_name %}
+{% load widget_tweaks %}
+
 {% block head %}
     <title>{{ title }}</title>
 {% endblock head %}
@@ -9,6 +12,38 @@
 
 {% block content %}
 <h1 class="text-center">Dostępne samochody</h1>
+
+     <div class="bg-light">
+      <form method="get" class="m-3">
+
+      <h4 style="margin-top: 0">Filtruj samochody</h4>
+       <div class="form-row">
+    <div class="form-group col-md-6">
+      <label for="inputEmail4">Model</label>
+        {% render_field filter.form.model class="form-control" %}
+    </div>
+    <div class="form-group col-md-6">
+      <label for="inputPassword4">Kategoria</label>
+      {% render_field filter.form.kategoria class="form-control" %}
+    </div>
+           <div class="form-group col-md-6">
+      <label for="inputPassword4">Silnik</label>
+      {% render_field filter.form.silnik class="form-control" %}
+    </div>
+           <div class="form-group col-md-6">
+      <label for="inputPassword4">Skrzynia</label>
+      {% render_field filter.form.skrzynia class="form-control" %}
+    </div>
+  </div>
+        <div class="text-center">
+      <button type="submit" class="btn btn-primary">
+        <span class="glyphicon glyphicon-search"></span> Filtruj
+      </button>
+            </div>
+
+  </form>
+    </div>
+
     {% if elementy.object_list %}
         <div class="text-center">
         <table class="table table-striped table-responsive">
@@ -42,29 +77,29 @@
             <ul class="pagination justify-content-center">
 
                 {% if elementy.has_previous %}
-                    <li class="page-item"><a class="page-link" href="?page={{ elementy.previous_page_number }}">&laquo;</a></li>
+                    <li class="page-item"><a class="page-link" href="?{% param_replace page=elementy.previous_page_number %}">&laquo;</a></li>
                 {% else %}
                     <li class="page-item disabled"><a class="page-link" href="#"><span>&laquo;</span></a></li>
                 {% endif %}
 
                 {% if elementy.number|add:'-4' > 1 %}
-                    <li class="page-item"><a class="page-link" href="?page={{ elementy.number|add:'-5' }}">&hellip;</a></li>
+                    <li class="page-item"><a class="page-link" href="?{% param_replace page=elementy.number|add:'-5' %}">&hellip;</a></li>
                 {% endif %}
 
                 {% for i in elementy.paginator.page_range %}
                     {% if elementy.number == i %}
                         <li class="page-item active"><span class="page-link">{{ i }} <span class="sr-only">(current)</span></span></li>
                     {% elif i > elementy.number|add:'-5' and i < elementy.number|add:'5' %}
-                        <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+                        <li class="page-item"><a class="page-link" href="?{% param_replace page=i %}">{{ i }}</a></li>
                     {% endif %}
                 {% endfor %}
 
                 {% if elementy.paginator.num_pages > elementy.number|add:'4' %}
-                    <li class="page-item"><a class="page-link" href="?page={{ elementy.number|add:'5' }}">&hellip;</a></li>
+                    <li class="page-item"><a class="page-link" href="?{% param_replace page=elementy.number|add:'5' %}">&hellip;</a></li>
                 {% endif %}
 
                 {% if elementy.has_next %}
-                    <li class="page-item"><a class="page-link" href="?page={{ elementy.next_page_number }}">&raquo;</a></li>
+                    <li class="page-item"><a class="page-link" href="?{% param_replace page=elementy.next_page_number %}">&raquo;</a></li>
                 {% else %}
                     <li class="page-item disabled"><a class="page-link" href="#"><span>&raquo;</span></a></li>
                 {% endif %}
