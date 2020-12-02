@@ -1,30 +1,30 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from accounts.forms import UserAdminCreationForm, UserAdminChangeForm
 from django.contrib.auth.models import Group
 # Register your models here.
 from accounts.models import Uzytkownik
 from .models import *
 from .forms import RezerwacjaAdmin
+from accounts.forms import *
 
 
 class UserAdmin(BaseUserAdmin):
     # Formularze do dodawania i zmiany użytkownika
-    form = UserAdminChangeForm
-    add_form = UserAdminCreationForm
+    add_form = CustomUserCreationForm
+    form = CustomUserChangeForm
 
     # Pola które wyświetlam
-    list_display = ('email', 'imie', 'nazwisko')
-    # list_filter = ('admin',)
+    list_display = ('email', 'imie', 'nazwisko', 'rola')
+    list_filter = ('rola',)
     fieldsets = (
         ('Ogólne', {'fields': ('email', 'password')}),
-        ('Informacje Osobiste', {'fields': ('imie', 'nazwisko')}),
-        ('Uprawnienia', {'fields': ('rola',)}),
+        ('Informacje Osobiste', {'fields': ('imie', 'nazwisko', 'ulica', 'miasto', 'kod_pocztowy', 'numer_telefonu', 'czy_firma', 'numer_nip', 'nazwa_firmy')}),
+        ('Uprawnienia', {'fields': ('rola', 'active')}),
     )
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('email', 'password1', 'password2', 'rola', 'imie', 'nazwisko')}
+            'fields': ('email', 'password1', 'password2', 'rola', 'imie', 'nazwisko', 'ulica', 'miasto', 'kod_pocztowy', 'numer_telefonu', 'czy_firma', 'numer_nip', 'nazwa_firmy', 'active')}
         ),
     )
     search_fields = ('email',)
@@ -33,7 +33,7 @@ class UserAdmin(BaseUserAdmin):
 
 admin.site.unregister(Group)
 admin.site.site_header = "Wypożyczalnia Samochodów"
-admin.site.register(Uzytkownik)
+admin.site.register(Uzytkownik, UserAdmin)
 admin.site.register(Rezerwacja, RezerwacjaAdmin)
 admin.site.register(Samochod)
 admin.site.register(SamochodMarka)

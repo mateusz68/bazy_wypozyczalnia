@@ -1,71 +1,90 @@
 from django import forms
-from django.contrib.auth.forms import ReadOnlyPasswordHashField
+from django.contrib.auth.forms import ReadOnlyPasswordHashField, UserCreationForm, UserChangeForm
 from django.contrib.auth import (
     authenticate,
     get_user_model
 )
+from django.contrib.auth import forms as auth_forms
 from accounts.models import Uzytkownik, MyAccountManager
 
 User = get_user_model()
 
-class RegisterForm(forms.ModelForm):
-    password = forms.CharField(widget=forms.PasswordInput)
-    password2 = forms.CharField(label='Powtórz hasło', widget=forms.PasswordInput)
+
+class CustomUserCreationForm(UserCreationForm):
+
+    class Meta(UserCreationForm):
+        model = Uzytkownik
+        fields = '__all__'
+
+
+class CustomUserChangeForm(UserChangeForm):
 
     class Meta:
         model = Uzytkownik
-        fields = ('email',)
-
-    def clean_email(self):
-        email = self.cleaned_data.get('email')
-        qs = Uzytkownik.objects.filter(email=email)
-        if qs.exists():
-            raise forms.ValidationError("Adres email jest zajęty")
-        return email
-
-    def clean_password2(self):
-        password1 = self.cleaned_data.get("password1")
-        password2 = self.cleaned_data.get("password2")
-        if password1 and password2 and password1 != password2:
-            raise forms.ValidationError("Hasłą nie pasują!")
-        return password2
+        fields = '__all__'
 
 
-class UserAdminCreationForm(forms.ModelForm):
-    #Tworzenie nowego użytkownika
-    password1 = forms.CharField(label='Password', widget=forms.PasswordInput)
-    password2 = forms.CharField(label='Password confirmation', widget=forms.PasswordInput)
+class RegisterFormFir(forms.ModelForm):
+    password2 = forms.CharField(label='Powtórz hasło', widget=forms.PasswordInput(attrs={'class': 'form-control'}))
+    password = forms.CharField(label='Powtórz hasło', widget=forms.PasswordInput(attrs={'class': 'form-control'}))
+    nazwa_firmy = forms.CharField(required=True,  widget=forms.TextInput(attrs={'class': 'form-control'}))
+    numer_nip = forms.IntegerField(required=True,  widget=forms.NumberInput(attrs={'class': 'form-control'}))
 
     class Meta:
         model = Uzytkownik
-        fields = ('email',)
-
-    def clean_password2(self):
-        password1 = self.cleaned_data.get("password1")
-        password2 = self.cleaned_data.get("password2")
-        if password1 and password2 and password1 != password2:
-            raise forms.ValidationError("Hasła nie pasują!")
-        return password2
-
-
-    def save(self, commit=True):
-        user = super(UserAdminCreationForm, self).save(commit=False)
-        user.set_password(self.cleaned_data["password1"])
-        if commit:
-            user.save()
-        return user
-
-
-class UserAdminChangeForm(forms.ModelForm):
-    #Aktualizanie dnaych użytkownika
-    password = ReadOnlyPasswordHashField()
-
-    class Meta:
-        model = Uzytkownik
-        fields = ('email', 'password', 'active', 'rola')
+        fields = ['nazwa_firmy', 'numer_nip', 'ulica', 'miasto', 'kod_pocztowy', 'numer_telefonu', 'email', 'password']
+        widgets = {
+            'ulica': forms.TextInput(attrs={'class': 'form-control'}),
+            'miasto': forms.TextInput(attrs={'class': 'form-control'}),
+            'kod_pocztowy': forms.TextInput(attrs={'class': 'form-control'}),
+            'numer_telefonu': forms.NumberInput(attrs={'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control'}),
+        }
 
     def clean_password(self):
-        return self.initial["password"]
+        password1 = self.cleaned_data.get('password')
+        password2 = self.cleaned_data.get('password2')
+        if password1 and password2 and password1 != password2:
+            raise forms.ValidationError("Hasła nie pasują!")
+        return password1
+
+    def clean_numer_telefonu(self):
+        numer = self.cleaned_data.get('numer_telefonu')
+        if len(str(numer)) != 9:
+            raise forms.ValidationError("Numer telefonu musi zawierać 9 cyfr!")
+        return numer
+
+
+class RegisterFormPry(forms.ModelForm):
+    password2 = forms.CharField(label='Powtórz hasło', widget=forms.PasswordInput(attrs={'class': 'form-control'}))
+    password = forms.CharField(label='Powtórz hasło', widget=forms.PasswordInput(attrs={'class': 'form-control'}))
+    imie = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    nazwisko = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control'}))
+
+    class Meta:
+        model = Uzytkownik
+        fields = ['imie', 'nazwisko', 'ulica', 'miasto', 'kod_pocztowy', 'numer_telefonu', 'email', 'password']
+        widgets = {
+            'ulica': forms.TextInput(attrs={'class': 'form-control'}),
+            'miasto': forms.TextInput(attrs={'class': 'form-control'}),
+            'kod_pocztowy': forms.TextInput(attrs={'class': 'form-control'}),
+            'numer_telefonu': forms.NumberInput(attrs={'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control'}),
+        }
+
+    def clean_password(self):
+        password1 = self.cleaned_data.get('password')
+        password2 = self.cleaned_data.get('password2')
+        if password1 and password2 and password1 != password2:
+            raise forms.ValidationError("Hasła nie pasują!")
+        return password1
+
+    def clean_numer_telefonu(self):
+        numer = self.cleaned_data.get('numer_telefonu')
+        if len(str(numer)) != 9:
+            raise forms.ValidationError("Numer telefonu musi zawierać 9 cyfr!")
+        return numer
+
 
 class UserLoginForm(forms.Form):
     email = forms.EmailField(label='Adres email', widget=forms.EmailInput(attrs={'class': 'form-control'}))

@@ -10,7 +10,7 @@ from django.contrib.auth import (
     logout
 )
 
-from .forms import UserLoginForm, UserRegisterForm
+from .forms import *
 
 
 def login_view(request):
@@ -33,27 +33,70 @@ def login_view(request):
 
 
 def register_view(request):
-    if request.user.is_authenticated:
-        return render(request, 'brak_dostepu.html')
-    next = request.GET.get('next')
-    form = UserRegisterForm(request.POST or None)
-    if form.is_valid():
-        user = form.save(commit=False)
-        password = form.cleaned_data.get('password1')
-        email = form.cleaned_data.get("email")
-        user.set_password(password)
-        user.save()
-        new_user = authenticate(email=email, password=password)
-        login(request, new_user)
-        if next:
-            return redirect(next)
-        return redirect('/')
-    context = {
-        'form': form,
-    }
-    return render(request, "signup.html", context)
+    # if request.user.is_authenticated:
+    #     return render(request, 'brak_dostepu.html')
+    # next = request.GET.get('next')
+    # form = UserRegisterForm(request.POST or None)
+    # if form.is_valid():
+    #     user = form.save(commit=False)
+    #     password = form.cleaned_data.get('password1')
+    #     email = form.cleaned_data.get("email")
+    #     user.set_password(password)
+    #     user.save()
+    #     new_user = authenticate(email=email, password=password)
+    #     login(request, new_user)
+    #     if next:
+    #         return redirect(next)
+    #     return redirect('/')
+    # context = {
+    #     'form': form,
+    # }
+    # return render(request, "signup.html", context)
+    return render(request, 'register.html')
 
 
 def logout_view(request):
     logout(request)
     return redirect('/')
+
+
+def register_firma(request):
+    next = request.GET.get('next')
+    if request.method == 'POST':
+        form = RegisterFormFir(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            email = form.cleaned_data.get('email')
+            raw_password = form.cleaned_data.get('password')
+            user.set_password(raw_password)
+            user.czy_firma = True
+            user.save()
+            new_user = authenticate(email=email, password=raw_password)
+            login(request, new_user)
+            if next:
+                return redirect(next)
+            return redirect('wypozyczalnia:index')
+    else:
+        form = RegisterFormFir()
+    return render(request, 'signup.html', {'form': form})
+
+
+def register_pry(request):
+    next = request.GET.get('next')
+    if request.method == 'POST':
+        form = RegisterFormPry(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            email = form.cleaned_data.get('email')
+            raw_password = form.cleaned_data.get('password')
+            user.set_password(raw_password)
+            user.save()
+            new_user = authenticate(email=email, password=raw_password)
+            login(request, new_user)
+            if next:
+                return redirect(next)
+            return redirect('wypozyczalnia:index')
+    else:
+        form = RegisterFormPry()
+    return render(request, 'signup.html', {'form': form})
+

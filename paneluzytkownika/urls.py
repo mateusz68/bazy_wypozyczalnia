@@ -12,6 +12,7 @@ urlpatterns = [
     path('zmien_dane', views.zmien_dane, name='zmien_dane'),
     path('rezerwacje', views.lista_rezerwacji_uzytk, name='lista_rezerwacji_uzytk'),
     path('rezerwacje/szczegoly/<int:pk>', views.szczegoly_rezerwacji_uztk, name='szczegoly_rezerwacji_uztk'),
-    path('rezerwacje/dokument', views.generuj_pdf, name='generuj_pdf'),
+    path('rezerwacje/anuluj/<int:pk>', views.rezerwacja_anuluj, name='rezerwacja_anuluj'),
+    path('rezerwacje/dokument/faktura/<int:pk>', views.faktura_generuj_pdf, name='faktura_generuj_pdf'),
 
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

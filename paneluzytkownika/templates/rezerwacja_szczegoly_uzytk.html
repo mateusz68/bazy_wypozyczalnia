@@ -40,7 +40,7 @@
 
     {% if rezerwacja.status_rezerwacji == 'WE' or rezerwacja.status_rezerwacji == 'ZA' %}
         <div class="text-center">
-    <a href="/panel_pracownika/rezerwacje/edytuj/{{ rezerwacja.id }}" class="btn btn-warning btn-lg" role="button">Anuluj Rezerwacje</a>
+    <a href="/panel_uzytkownika/rezerwacje/anuluj/{{ rezerwacja.id }}" class="btn btn-warning btn-lg" role="button">Anuluj Rezerwacje</a>
     </div>
     {% endif %}
 
@@ -65,24 +65,20 @@
         </table>
 
     <h3>Dokumenty:</h3>
-    <table class="table table-striped text-center mb-4">
-            <thead>
-            <tr>
-                <th scope="col">Wysokość kaucji</th>
-                <th scope="col">Koszt Wynajmu</th>
-            </tr>
-            </thead>
-            <tbody>
-
-                <tr>
-                    <td>{{ rezerwacja.samochod.kaucja }} PLN</td>
-                    <td>{{ rezerwacja.get_koszt }} PLN</td>
-                </tr>
-            </tbody>
-        </table>
     {% for dokument in dokument_platnosc %}
-        <h4>{{ dokument.dokument }}</h4>
-
+        <h4>{{ dokument.dokument.get_typ_display }}</h4>
+        {% if dokument.dokument.typ == "FV" %}
+            <div class="text-center">
+        <a href="/panel_uzytkownika/rezerwacje/dokument/faktura/{{ dokument.dokument.id }}" class="btn btn-success btn-lg" role="button" target="_blank">Pobierz Fakturę</a>
+</div>
+        {% endif %}
+        {% if dokument.dokument.typ == "KA" %}
+            <div class="text-center">
+        <a href="/panel_uzytkownika/rezerwacje/dokument/kaucja/{{ dokument.dokument.id }}" class="btn btn-success btn-lg" role="button" target="_blank">Pobierz Dokument</a>
+</div>
+        {% endif %}
+        <br>
+        <h4>Otrzymane płatności:</h4>
         <table class="table table-striped">
             <thead>
             <tr>

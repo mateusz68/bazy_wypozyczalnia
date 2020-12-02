@@ -14,12 +14,7 @@ def czy_pracownik(user):
         return True
     return False
 
-
-def test(request, pk=None):
-    print(request.GET['id'])
-    return  render(request, 'form_test.html', {'element': pk})
-
-
+# TODO: Poprawić bo nie działa
 @login_required()
 @user_passes_test(czy_pracownik, login_url='wypozyczalnia:brak_dostepu')
 def dodaj_platnosc_rezerwacja(request):
@@ -35,6 +30,7 @@ def dodaj_platnosc_rezerwacja(request):
         form = DodajPlatnoscZamownie(key=pk)
     return render(request, 'dodaj_form.html',
                   {'form': form, 'title': "Dodaj płatność do rezerwacji", 'target': 'panelpracownika:dodaj_platnosc_rezerwacja'})
+
 
 @login_required()
 @user_passes_test(czy_pracownik, login_url='wypozyczalnia:brak_dostepu')
@@ -54,6 +50,7 @@ def rezerwacje(request):
               {'filter': rezerwacje_filter, 'elementy': rezerwacje, 'url': request.path, 'title': 'Zarządzaj rezerwacjami'})
 
 
+# TODO: Poprawić wyświetlanie dokumentów i płatności
 @login_required()
 @user_passes_test(czy_pracownik, login_url='wypozyczalnia:brak_dostepu')
 def rezerwacja_szczegoly(request, pk=None):

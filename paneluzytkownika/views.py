@@ -1,15 +1,38 @@
+from django.contrib.auth.decorators import login_required
+from django.core.files.storage import FileSystemStorage
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
-from django.template.loader import get_template
+from django.template.loader import get_template, render_to_string
+
 from .utils import render_to_pdf
 from accounts.models import Uzytkownik
 from .forms import *
 
 
+@login_required()
+def rezerwacja_anuluj(request, pk=None):
+    uzytkownik = get_object_or_404(Uzytkownik, pk=request.user.id)
+    rezerwacja = get_object_or_404(Rezerwacja, pk=pk)
+    if uzytkownik != rezerwacja.uzytkownik:
+        return redirect('paneluzytkownika:lista_rezerwacji_uzytk')
+    if rezerwacja.status_rezerwacji != Rezerwacja.StatusRezerwacji.WERYFIKACJA or rezerwacja.status_rezerwacji != Rezerwacja.StatusRezerwacji.ZAAKCEPTOWANA:
+        return redirect('paneluzytkownika:lista_rezerwacji_uzytk')
+    if request.method == 'POST':
+        form = AnulujRezerwacje(request.POST, instance=rezerwacja)
+        if form.is_valid():
+            rezerwacja.status_rezerwacji = Rezerwacja.StatusRezerwacji.ANULOWANA
+            rezerwacja.save()
+            return redirect('paneluzytkownika:lista_rezerwacji_uzytk')
+    else:
+        form = AnulujRezerwacje(instance=rezerwacja)
+    return render(request, 'anuluj_rezerwacja.html', {'form': form, 'element': rezerwacja, 'title': "Anuluj wybraną rezerwację", 'target': 'paneluzytkownika:rezerwacja_anuluj'})
+
+
+@login_required()
 def zmien_haslo(request):
     if request.method == 'POST':
         form = PasswordChangeForm(request.user, request.POST)
@@ -27,6 +50,7 @@ def zmien_haslo(request):
     })
 
 
+@login_required()
 def zmien_dane(request):
     uzytkownik = get_object_or_404(Uzytkownik, pk=request.user.id)
     if uzytkownik.czy_firma:
@@ -53,6 +77,7 @@ def zmien_dane(request):
                        'target': 'paneluzytkownika:zmien_dane'})
 
 
+@login_required()
 def lista_rezerwacji_uzytk(request):
     uzytkownik = get_object_or_404(Uzytkownik, pk=request.user.id)
     rezerwacje_lista = Rezerwacja.objects.filter(uzytkownik_id=uzytkownik.id).order_by('data_od')
@@ -69,6 +94,7 @@ def lista_rezerwacji_uzytk(request):
                   {'elementy': rezerwacje, 'url': request.path})
 
 
+@login_required()
 def szczegoly_rezerwacji_uztk(request, pk=None):
     rezerwacja = get_object_or_404(Rezerwacja, pk=pk)
     dokumenty = Dokument.objects.filter(rezerwacja_id=pk)
@@ -91,17 +117,29 @@ def szczegoly_rezerwacji_uztk(request, pk=None):
                   {'rezerwacja': rezerwacja, 'dokumenty': dokumenty, 'dokument_platnosc': dokument_platnosc})
 
 
-def generuj_pdf(request):
-    # template = get_template('pdf/faktura.html')
+@login_required()
+def faktura_generuj_pdf(request, pk=None):
+    uzytkownik = get_object_or_404(Uzytkownik, pk=request.user.id)
+    dokument = get_object_or_404(Dokument, pk = pk)
+    dodatki = DodatkoweOplaty.objects.filter(dokument_id=dokument.id)
+    if dokument.typ != Dokument.DokumentTyp.FAKTURA:
+        return redirect('wypozyczalnia:index')
+    if dokument.rezerwacja.uzytkownik != uzytkownik:
+        return redirect('wypozyczalnia:index')
+    suma = dokument.kwota
+    for d in dodatki:
+        suma = suma + d.wysokosc
     context = {
-        "invoice_id": 1235,
-        "customer_name": "John Cooper",
-        "amount": 1399.99,
-        "today": "Today",
+        "id": dokument.rezerwacja.id,
+        "uzytkownik": uzytkownik,
+        "samochod_koszt": dokument.kwota,
+        "ubezpieczenie_koszt": dokument.rezerwacja.ubezpieczenie.cena,
+        "dodatki": dodatki,
+        "suma": suma,
     }
-    # html = template.render(context)
     pdf = render_to_pdf('pdf/faktura.html', context)
     if pdf:
         return HttpResponse(pdf, content_type='application/pdf')
     else:
         return HttpResponse("Error Rendering PDF", status=400)
+

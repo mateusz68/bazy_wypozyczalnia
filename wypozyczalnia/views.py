@@ -1,10 +1,7 @@
+from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.shortcuts import render, get_object_or_404, redirect
-from accounts.models import Uzytkownik
-from wypozyczalnia.models import *
 from wypozyczalnia.forms import *
-from django.contrib import messages
-from django.contrib import messages
 from .filters import *
 
 
@@ -21,6 +18,16 @@ def kontakt(request):
     return render(request, 'kontakt.html')
 
 
+def regulamin(request):
+    return render(request, 'regulamin.html')
+
+
+def ubezpieczenia(request):
+    ubezpieczenia = TypUbezpieczenia.objects.all()
+    return render(request, 'ubezpieczenia.html', {'ubezpieczenia': ubezpieczenia})
+
+
+@login_required()
 def udana_rezerwacja(request):
     return render(request, 'udana_rezerwacja.html')
 
@@ -31,6 +38,7 @@ def szczczegoly_samochodu(request, pk=None):
     return render(request, 'szczegoly_samochod.html', {'samochod': samochod, 'rezerwacje': rezerwacje})
 
 
+@login_required()
 def rezerwuj_samochod(request):
     uzytkownik = get_object_or_404(Uzytkownik, pk=request.user.id)
     pk = request.GET.get('id')
@@ -44,7 +52,7 @@ def rezerwuj_samochod(request):
         if form.is_valid():
             temp_rez = Rezerwacja()
             temp_rez.uzytkownik = uzytkownik
-            ubezpieczenie = Ubezpieczenie(cena=100, typ_id=form.cleaned_data.get('typ_ubezpieczenie'))
+            ubezpieczenie = Ubezpieczenie(cena=0, typ_id=form.cleaned_data.get('typ_ubezpieczenie'))
             ubezpieczenie.save()
             temp_rez.ubezpieczenie_id = ubezpieczenie.id
             temp_rez.uwagi = form.cleaned_data.get('uwagi')
@@ -67,7 +75,6 @@ def rezerwuj_samochod(request):
 def samochody_lista(request):
     samochody_lista = Samochod.objects.filter(status_samochodu=Samochod.StatusSamochod.DOSTEPNY)
     samochody_filter = SamochodFilter(request.GET, queryset=samochody_lista)
-
     page = request.GET.get('page', 1)
     paginator = Paginator(samochody_filter.qs, 10)
     try:
@@ -79,4 +86,3 @@ def samochody_lista(request):
 
     return render(request, 'samochody_list.html',
                   {'filter': samochody_filter, 'elementy': samochody, 'url': request.path, 'title': 'Zarządzaj rezerwacjami'})
-

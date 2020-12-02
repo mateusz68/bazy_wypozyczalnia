@@ -16,6 +16,12 @@ class ZmienDanePrywatna(ModelForm):
         }
 
 
+class AnulujRezerwacje(ModelForm):
+    class Meta:
+        model = Rezerwacja
+        fields = []
+
+
 class ZmienDaneFirma(ModelForm):
     class Meta:
         model = Uzytkownik
