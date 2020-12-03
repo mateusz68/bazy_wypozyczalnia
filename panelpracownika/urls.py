@@ -72,7 +72,5 @@ urlpatterns = [
     path('samochod_skrzynia/dodaj', views.samochod_skrzynia_dodaj, name="samochod_skrzynia_dodaj"),
     path('samochod_skrzynia/edytuj/<int:pk>', views.samochod_skrzynia_edytuj, name="samochod_skrzynia_edytuj"),
     path('samochod_skrzynia/usun/<int:pk>', views.samochod_skrzynia_usun, name="samochod_skrzynia_usun"),
-    # Autokomplete
-    url(r'^user-autocomplete/$', views.UserAutocomplete.as_view(), name="user_autocomplete"),
 
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

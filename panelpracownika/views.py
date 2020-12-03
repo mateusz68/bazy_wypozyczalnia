@@ -859,12 +859,3 @@ def kaucja_generuj_pdf(request, pk=None):
     else:
         return HttpResponse("Error Rendering PDF", status=400)
 
-
-class UserAutocomplete(autocomplete.Select2QuerySetView):
-    def get_queryset(self):
-        qs = Dokument.objects.all()
-
-        if self.q:
-            qs = qs.filter(name__istartswith=self.q)
-
-        return qs

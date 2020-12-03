@@ -1,6 +1,8 @@
 {% extends 'base_panel.html' %}
+{% load crispy_forms_filters %}
 {% load class_name %}
 {% load widget_tweaks %}
+{% load crispy_forms_tags %}
 
 {% block head %}
     <title>Rezerwacje wszystkie</title>
@@ -33,13 +35,8 @@
         <span class="glyphicon glyphicon-search"></span> Filtruj
       </button>
             </div>
-
   </form>
     </div>
-{#<form method="get">#}
-{#    {{ filter.form.as_p }}#}
-{#    <button type="submit">Search</button>#}
-{#  </form>#}
 
     {% if elementy.object_list %}
         <table class="table table-striped">
@@ -106,5 +103,9 @@
             <strong>Uwaga!</strong> Brak elementów do wyświetlenia
         </div>
     {% endif %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    {{ filter.form.media.js }}
+
+
 
 {% endblock %}

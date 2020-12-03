@@ -81,4 +81,3 @@ class Uzytkownik(AbstractBaseUser):
 
     class Meta:
         verbose_name_plural = "Użytkownicy"
-
