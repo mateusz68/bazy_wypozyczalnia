@@ -1,11 +1,11 @@
 from django.contrib.auth.decorators import user_passes_test, login_required
-from django.http import Http404, HttpResponseBadRequest
-from django.shortcuts import render, get_object_or_404, redirect
-from .filters import RezerwacjaFilter
-from accounts.models import Uzytkownik
-from wypozyczalnia.models import *
-from panelpracownika.forms import *
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.http import HttpResponse
+from django.shortcuts import render, get_object_or_404, redirect
+
+from panelpracownika.forms import *
+from paneluzytkownika.utils import render_to_pdf
+from .filters import *
 from .utlis import *
 
 
@@ -14,22 +14,25 @@ def czy_pracownik(user):
         return True
     return False
 
-# TODO: Poprawić bo nie działa
+
 @login_required()
 @user_passes_test(czy_pracownik, login_url='wypozyczalnia:brak_dostepu')
 def dodaj_platnosc_rezerwacja(request):
     pk = request.GET.get('id')
     if pk is None:
         return redirect('panelpracownika:rezerwacje')
+    dokument = get_object_or_404(Dokument, pk=pk)
     if request.method == 'POST':
-        form = DodajPlatnoscZamownie(request.POST, key=pk)
+        form = DodajPlatnoscZamownie(request.POST)
         if form.is_valid():
-            form.save()
+            platnosc = form.save(commit=False)
+            platnosc.dokument_id = pk
+            platnosc.save()
             return redirect('panelpracownika:rezerwacje')
     else:
-        form = DodajPlatnoscZamownie(key=pk)
-    return render(request, 'dodaj_form.html',
-                  {'form': form, 'title': "Dodaj płatność do rezerwacji", 'target': 'panelpracownika:dodaj_platnosc_rezerwacja'})
+        form = DodajPlatnoscZamownie()
+    return render(request, 'platnosc_rezerwacja.html',
+                  {'form': form, 'title': "Dodaj płatność do dokumentu " + str(dokument), 'target': 'panelpracownika:dodaj_platnosc_rezerwacja'})
 
 
 @login_required()
@@ -50,7 +53,7 @@ def rezerwacje(request):
               {'filter': rezerwacje_filter, 'elementy': rezerwacje, 'url': request.path, 'title': 'Zarządzaj rezerwacjami'})
 
 
-# TODO: Poprawić wyświetlanie dokumentów i płatności
+
 @login_required()
 @user_passes_test(czy_pracownik, login_url='wypozyczalnia:brak_dostepu')
 def rezerwacja_szczegoly(request, pk=None):
@@ -60,19 +63,23 @@ def rezerwacja_szczegoly(request, pk=None):
     dokument_platnosc = []
     for dokument in dokumenty:
         platnosci = Platnosc.objects.filter(dokument_id=dokument.id)
+        dodatki = DodatkoweOplaty.objects.filter(dokument_id=dokument.id)
         suma = 0
+        koszt = dokument.kwota + dokument.rezerwacja.ubezpieczenie.cena
         for platnosc in platnosci:
             suma += platnosc.wysokosc
-
+        for dodatek in dodatki:
+            koszt += dodatek.wysokosc
         temp = {
             'dokument': dokument,
             'platnosci': platnosci,
-            'wplacono': suma
+            'wplacono': suma,
+            'koszt': koszt
         }
         dokument_platnosc.append(temp)
 
     return render(request, 'rezerwacja_szczegoly.html',
-              {'rezerwacja': rezerwacja, 'dokumenty':dokumenty, 'dokument_platnosc': dokument_platnosc})
+              {'rezerwacja': rezerwacja, 'dokumenty': dokumenty, 'dokument_platnosc': dokument_platnosc})
 
 
 
@@ -86,10 +93,7 @@ def rezerwacja_zmien_stan(request, pk=None):
             form.save()
             if form.cleaned_data.get("status_rezerwacji") == Rezerwacja.StatusRezerwacji.ZAAKCEPTOWANA:
                 dokument_temp = Dokument.objects.filter(rezerwacja_id=rezerwacja.id, typ=Dokument.DokumentTyp.KAUCJA)
-                print("if zakceptopwana")
-                print(dokument_temp)
                 if len(dokument_temp) == 0:
-                    print("drugi if")
                     dokument = Dokument(typ=Dokument.DokumentTyp.KAUCJA)
                     dokument.kwota = rezerwacja.samochod.kaucja
                     dokument.rezerwacja_id = rezerwacja.id
@@ -99,7 +103,7 @@ def rezerwacja_zmien_stan(request, pk=None):
                 dokument_temp = Dokument.objects.filter(rezerwacja_id=rezerwacja.id, typ=Dokument.DokumentTyp.FAKTURA)
                 if(len(dokument_temp) == 0):
                     dokument = Dokument(typ=Dokument.DokumentTyp.FAKTURA)
-                    dokument.kwota = rezerwacja.get_koszt()
+                    dokument.kwota = rezerwacja.calculate_koszt()
                     dokument.rezerwacja_id = rezerwacja.id
                     dokument.save()
             print(form.cleaned_data.get("status_rezerwacji"))
@@ -163,8 +167,9 @@ def rezerwacje_usun(request, pk=None):
 @user_passes_test(czy_pracownik, login_url='wypozyczalnia:brak_dostepu')
 def dokumenty(request):
     dokumenty_lista = Dokument.objects.all().order_by('rezerwacja__data_od')
+    dokumenty_filter = DokumentyFilter(request.GET, queryset=dokumenty_lista)
     page = request.GET.get('page', 1)
-    paginator = Paginator(dokumenty_lista, 10)
+    paginator = Paginator(dokumenty_filter.qs, 10)
     try:
         dokumenty = paginator.page(page)
     except PageNotAnInteger:
@@ -172,8 +177,8 @@ def dokumenty(request):
     except EmptyPage:
         dokumenty = paginator.page(paginator.num_pages)
 
-    return render(request, 'lista_strony.html',
-              {'elementy': dokumenty, 'url': request.path, 'title': 'Zarządzaj dokumentami'})
+    return render(request, 'lista_filtr.html',
+              {'filter': dokumenty_filter, 'elementy': dokumenty, 'url': request.path, 'title': 'Zarządzaj dokumentami'})
 
 
 @login_required()
@@ -221,8 +226,9 @@ def dokumenty_usun(request, pk=None):
 @user_passes_test(czy_pracownik, login_url='wypozyczalnia:brak_dostepu')
 def dodatkowe_oplaty(request):
     dodatkowe_oplaty_lista = DodatkoweOplaty.objects.all().order_by('dokument__rezerwacja__data_od')
+    dodatkowe_oplaty_filter = DodatkoweOplatyFilter(request.GET, queryset=dodatkowe_oplaty_lista)
     page = request.GET.get('page', 1)
-    paginator = Paginator(dodatkowe_oplaty_lista, 10)
+    paginator = Paginator(dodatkowe_oplaty_filter.qs, 10)
     try:
         dodatkowe_oplaty = paginator.page(page)
     except PageNotAnInteger:
@@ -230,8 +236,8 @@ def dodatkowe_oplaty(request):
     except EmptyPage:
         dodatkowe_oplaty = paginator.page(paginator.num_pages)
 
-    return render(request, 'lista_strony.html',
-              {'elementy': dodatkowe_oplaty, 'url': request.path, 'title': 'Zarządzaj dodatkowymi opłatami'})
+    return render(request, 'lista_filtr.html',
+              {'filter': dodatkowe_oplaty_filter, 'elementy': dodatkowe_oplaty, 'url': request.path, 'title': 'Zarządzaj dodatkowymi opłatami'})
 
 
 @login_required()
@@ -279,8 +285,9 @@ def dodatkowe_oplaty_usun(request, pk=None):
 @user_passes_test(czy_pracownik, login_url='wypozyczalnia:brak_dostepu')
 def platnosc(request):
     platnosci_lista = Platnosc.objects.all().order_by('data')
+    platnosci_filter = PlatnosciFilter(request.GET, queryset=platnosci_lista)
     page = request.GET.get('page', 1)
-    paginator = Paginator(platnosci_lista, 10)
+    paginator = Paginator(platnosci_filter.qs, 10)
     try:
         platnosc = paginator.page(page)
     except PageNotAnInteger:
@@ -288,8 +295,8 @@ def platnosc(request):
     except EmptyPage:
         platnosc = paginator.page(paginator.num_pages)
 
-    return render(request, 'lista_strony.html',
-              {'elementy': platnosc, 'url': request.path, 'title': 'Zarządzaj płatnościami'})
+    return render(request, 'lista_filtr.html',
+              {'filter': platnosci_filter, 'elementy': platnosc, 'url': request.path, 'title': 'Zarządzaj płatnościami'})
 
 
 @login_required()
@@ -338,8 +345,9 @@ def platnosc_usun(request, pk=None):
 @user_passes_test(czy_pracownik, login_url='wypozyczalnia:brak_dostepu')
 def ubezpieczenie(request):
     ubezpieczenie_lista = Ubezpieczenie.objects.all().order_by('numer_polisy')
+    ubezpieczenie_filter = UbezpieczeniaFilter(request.GET, queryset=ubezpieczenie_lista)
     page = request.GET.get('page', 1)
-    paginator = Paginator(ubezpieczenie_lista, 10)
+    paginator = Paginator(ubezpieczenie_filter.qs, 10)
     try:
         ubezpieczenia = paginator.page(page)
     except PageNotAnInteger:
@@ -347,8 +355,8 @@ def ubezpieczenie(request):
     except EmptyPage:
         ubezpieczenia = paginator.page(paginator.num_pages)
 
-    return render(request, 'lista_strony.html',
-              {'elementy': ubezpieczenia, 'url': request.path, 'title': 'Zarządzaj ubezpieczeniami'})
+    return render(request, 'lista_filtr.html',
+              {'filter': ubezpieczenie_filter, 'elementy': ubezpieczenia, 'url': request.path, 'title': 'Zarządzaj ubezpieczeniami'})
 
 
 @login_required()
@@ -797,3 +805,54 @@ def samochod_skrzynia_usun(request, pk=None):
         form = SkrzyniaSamochodDeleteForm(instance=samochod_skrzynia)
     return render(request, 'usun_form.html', {'form': form, 'element': samochod_skrzynia, 'title': "Usuń wybrany typ skrzyni biegów", 'target': 'panelpracownika:samochod_skrzynia_usun'})
 
+
+@login_required()
+@user_passes_test(czy_pracownik, login_url='wypozyczalnia:brak_dostepu')
+def faktura_generuj_pdf(request, pk=None):
+    dokument = get_object_or_404(Dokument, pk = pk)
+    dodatki = DodatkoweOplaty.objects.filter(dokument_id=dokument.id)
+    if dokument.typ != Dokument.DokumentTyp.FAKTURA:
+        return redirect('wypozyczalnia:index')
+    suma = dokument.kwota + dokument.rezerwacja.ubezpieczenie.cena
+    for d in dodatki:
+        suma = suma + d.wysokosc
+    context = {
+        "id": dokument.rezerwacja.id,
+        "uzytkownik": dokument.rezerwacja.uzytkownik,
+        "samochod_koszt": dokument.kwota,
+        "samochod": dokument.rezerwacja.samochod.model,
+        "ubezpieczenie": dokument.rezerwacja.ubezpieczenie.typ.variant,
+        "ubezpieczenie_koszt": dokument.rezerwacja.ubezpieczenie.cena,
+        "dodatki": dodatki,
+        "suma": suma,
+    }
+    pdf = render_to_pdf('pdf/faktura.html', context)
+    if pdf:
+        return HttpResponse(pdf, content_type='application/pdf')
+    else:
+        return HttpResponse("Error Rendering PDF", status=400)
+
+
+@login_required()
+@user_passes_test(czy_pracownik, login_url='wypozyczalnia:brak_dostepu')
+def kaucja_generuj_pdf(request, pk=None):
+    dokument = get_object_or_404(Dokument, pk = pk)
+    dodatki = DodatkoweOplaty.objects.filter(dokument_id=dokument.id)
+    if dokument.typ != Dokument.DokumentTyp.KAUCJA:
+        return redirect('wypozyczalnia:index')
+    suma = dokument.kwota
+    for d in dodatki:
+        suma = suma + d.wysokosc
+    context = {
+        "id": dokument.rezerwacja.id,
+        "uzytkownik": dokument.rezerwacja.uzytkownik,
+        "samochod": dokument.rezerwacja.samochod.model,
+        "samochod_koszt": dokument.kwota,
+        "dodatki": dodatki,
+        "suma": suma,
+    }
+    pdf = render_to_pdf('pdf/kaucja.html', context)
+    if pdf:
+        return HttpResponse(pdf, content_type='application/pdf')
+    else:
+        return HttpResponse("Error Rendering PDF", status=400)

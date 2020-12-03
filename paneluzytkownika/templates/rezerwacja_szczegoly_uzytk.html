@@ -65,6 +65,7 @@
         </table>
 
     <h3>Dokumenty:</h3>
+    <hr>
     {% for dokument in dokument_platnosc %}
         <h4>{{ dokument.dokument.get_typ_display }}</h4>
         {% if dokument.dokument.typ == "FV" %}
@@ -97,8 +98,32 @@
                     {% endfor %}
             </tbody>
         </table><br>
-
-
+ <table class="table table-striped">
+            <tbody>
+                <tr class="table-danger">
+                    <td>Należność do zapłacenia:</td>
+                    <td>{{ dokument.koszt }} PLN</td>
+                    </tr>
+                    <tr class="table-success">
+                    <td>Wpłacona kwota:</td>
+                    <td>{{ dokument.wplacono }} PLN</td>
+                </tr>
+            </tbody>
+        </table>
+        {% if dokument.koszt == dokument.wplacono %}
+            <div class="alert alert-success">
+              Dokument opłacono poprawnie!
+            </div>
+        {% elif dokument.koszt < dokument.wplacono %}
+            <div class="alert alert-warning">
+              Wpłacona kwota jest wyższa od wymaganej!
+            </div>
+        {% else %}
+            <div class="alert alert-danger">
+              Nie została wpłacona wymagana kwota.
+            </div>
+        {% endif %}
+<hr>
     {% endfor %}
     <br>
 <div class="text-center">

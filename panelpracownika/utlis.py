@@ -7,8 +7,9 @@ def calculate_cost(rezerwacja_id):
     if len(dokument) == 0:
         return
     dokument = dokument[0]
-    ubezpieczenie = Ubezpieczenie.objects.get(pk = rezerwacja.ubezpieczenie_id)
-    ubezpieczenie.cena = ubezpieczenie.get_koszt(rezerwacja.calculate_koszt())
+    kwota = rezerwacja.calculate_koszt()
+    ubezpieczenie = Ubezpieczenie.objects.get(pk=rezerwacja.ubezpieczenie_id)
+    ubezpieczenie.cena = ubezpieczenie.get_koszt(kwota)
     ubezpieczenie.save()
-    dokument.kwota = rezerwacja.get_koszt()
+    dokument.kwota = kwota
     dokument.save()

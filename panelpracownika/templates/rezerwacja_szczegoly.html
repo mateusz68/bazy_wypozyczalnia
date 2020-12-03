@@ -41,12 +41,13 @@
                 </tr>
             <tr>
                     <th scope="row">Status</th>
-                    <td>{{ rezerwacja.status_rezerwacji }}</td>
+                    <td>{{ rezerwacja.get_status_rezerwacji_display }}</td>
                 </tr>
             </tbody>
         </table>
     <div class="text-center">
     <a href="/panel_pracownika/rezerwacje/edytuj/{{ rezerwacja.id }}" class="btn btn-info btn-lg" role="button">Edytuj Rezerwacje</a>
+    <td><a href="rezerwacje/zmien_status/{{ element.pk }}" class="btn btn-warning btn-lg" role="button">Zmień status</a></td>
     </div>
 
     <h3>Ubezpieczenie:</h3>
@@ -72,25 +73,22 @@
     <a href="/panel_pracownika/ubezpieczenie/edytuj/{{ rezerwacja.ubezpieczenie_id }}" class="btn btn-info btn-lg" role="button">Edytuj Ubezpieczenie</a>
     </div><br><br>
 
-    <h3>Dokumenty:</h3>
-    <table class="table table-striped text-center">
-            <thead>
-            <tr>
-                <th scope="col">Wysokość kaucji</th>
-                <th scope="col">Koszt Wynajmu</th>
-            </tr>
-            </thead>
-            <tbody>
-
-                <tr>
-                    <td>{{ rezerwacja.samochod.kaucja }} PLN</td>
-                    <td>{{ rezerwacja.get_koszt }} PLN</td>
-                </tr>
-            </tbody>
-        </table>
+     <h3>Dokumenty:</h3>
+    <hr>
     {% for dokument in dokument_platnosc %}
         <h4>{{ dokument.dokument }}</h4>
-
+        {% if dokument.dokument.typ == "FV" %}
+            <div class="text-center">
+        <a href="/panel_pracownika/dokumenty/faktura/{{ dokument.dokument.id }}" class="btn btn-success btn-lg" role="button" target="_blank">Pobierz Fakturę</a>
+</div>
+        {% endif %}
+        {% if dokument.dokument.typ == "KA" %}
+            <div class="text-center">
+        <a href="/panel_pracownika/dokumenty/kaucja/{{ dokument.dokument.id }}" class="btn btn-success btn-lg" role="button" target="_blank">Pobierz Dokument</a>
+</div>
+        {% endif %}
+        <br>
+        <h4>Otrzymane płatności:</h4>
         <table class="table table-striped">
             <thead>
             <tr>
@@ -109,12 +107,39 @@
                     {% endfor %}
             </tbody>
         </table><br>
-
-
+          <table class="table table-striped">
+            <tbody>
+                <tr class="table-danger">
+                    <td>Należność do zapłacenia:</td>
+                    <td>{{ dokument.koszt }} PLN</td>
+                    </tr>
+                    <tr class="table-success">
+                    <td>Wpłacona kwota:</td>
+                    <td>{{ dokument.wplacono }} PLN</td>
+                </tr>
+            </tbody>
+        </table>
+        {% if dokument.koszt == dokument.wplacono %}
+            <div class="alert alert-success">
+              Dokument opłacono poprawnie!
+            </div>
+        {% elif dokument.koszt < dokument.wplacono %}
+            <div class="alert alert-warning">
+              Wpłacona kwota jest wyższa od wymaganej!
+            </div>
+        {% else %}
+            <div class="alert alert-danger">
+              Nie została wpłacona wymagana kwota.
+            </div>
+        {% endif %}
+<div class="text-center">
+<a href="/panel_pracownika/rezerwacje/dodaj_platnosc?id={{ dokument.dokument.id }}" class="btn btn-info btn-lg" role="button">Dodaj Płatność</a>
+</div>
+        <hr>
     {% endfor %}
     <br>
 <div class="text-center">
-<a href="/panel_pracownika/rezerwacje/dodaj_platnosc?id={{ rezerwacja.id }}" class="btn btn-success btn-lg" role="button">Dodaj Płatność</a>
+
     <br><br>
     <a href="/panel_pracownika/rezerwacje" class="btn btn-warning btn-lg" role="button">Wróć do listy rezerwacji</a>
     </div><br><br>

@@ -9,9 +9,8 @@
 
 
 {% block content %}
-    <p>Formularz edycji wybranego elementu.</p>
 
-    <form action="{% url 'panelpracownika:platnosc' element.pk %}" method="post">
+    <form action="" method="post">
         {% csrf_token %}
         {% for field in form %}
             <div class="form-group row">

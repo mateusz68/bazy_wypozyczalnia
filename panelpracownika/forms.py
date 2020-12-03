@@ -5,20 +5,13 @@ from wypozyczalnia.models import *
 
 
 class DodajPlatnoscZamownie(ModelForm):
-
-    def __init__(self, key, *args, **kwargs):
-        super(DodajPlatnoscZamownie, self).__init__(*args, **kwargs)
-        dokumenty = Dokument.objects.filter(rezerwacja_id=key)
-        self.fields['dokument'] = forms.ChoiceField(choices=( (x.id, x) for x in dokumenty), widget=forms.Select(attrs={'class' : 'form-control'}))
-
     class Meta:
         model = Platnosc
-        fields = ['data', 'wysokosc', 'typ', 'dokument']
+        fields = ['data', 'wysokosc', 'typ']
         widgets = {
-            'data': forms.DateTimeInput(attrs={'class': 'form-control'}),
+            'data': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
             'wysokosc': forms.NumberInput(attrs={'class': 'form-control'}),
             'typ': forms.Select(attrs={'class': 'form-control'}),
-            # 'dokument': forms.Select(attrs={'class': 'form-control'}),
         }
 
 

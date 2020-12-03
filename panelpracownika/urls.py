@@ -39,6 +39,8 @@ urlpatterns = [
     path('dokumenty/dodaj', views.dokumenty_dodaj, name="dokumenty_dodaj"),
     path('dokumenty/edytuj/<int:pk>', views.dokumenty_edytuj, name="dokumenty_edytuj"),
     path('dokumenty/usun/<int:pk>', views.dokumenty_usun, name="dokumenty_usun"),
+    path('dokumenty/faktura/<int:pk>', views.faktura_generuj_pdf, name="faktura_generuj_pdf"),
+    path('dokumenty/kaucja/<int:pk>', views.kaucja_generuj_pdf, name="kaucja_generuj_pdf"),
     # Platnosc
     path('platnosc', views.platnosc, name="platnosc"),
     path('platnosc/dodaj', views.platnosc_dodaj, name="platnosc_dodaj"),

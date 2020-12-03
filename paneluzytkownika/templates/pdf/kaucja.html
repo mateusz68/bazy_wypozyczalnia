@@ -1,4 +1,4 @@
-﻿{% load static %}
+{% load static %}
 <!doctype html>
 <html lang="pl">
   <head>
@@ -6,32 +6,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <!-- Bootstrap CSS -->
-    <link href="{% static "pdf/bootstrap.css" %}" rel="stylesheet">
-
-    <title>Faktura #{{ id }}</title>
-{#      <style>#}
-{#          @page {#}
-{#   size: 7in 9.25in;#}
-{#   margin: 27mm 16mm 27mm 16mm;#}
-
-        {#  @font-face {#}
-        {#      font-family: "Calibri", Calibri, serif;#}
-        {#  }#}
-        {#  body {#}
-        {#      font-family: "Calibri", serif;#}
-{#        #}
-{#          @font-face { font-family: Roboto-Black; src: url({% static 'pdf/Roboto-Black.ttf'%}); }#}
-{#            body {#}
-{#                font-family: "Roboto-Black", serif;}#}
-          {#@font-face { font-family: Roboto-Black; src: url(C:\Users\Mateusz\PycharmProjects\bazy_projekt\paneluzytkownika\templates\pdf\Roboto-Black.ttf); }#}
-          {#p { color: red; font-family: Roboto-Black; }#}
-{#          .table_border {#}
-{#  border: 1px solid black;#}
-{#               border-collapse: separate;#}
-{#  border-spacing: 15px;#}
-
-{#      </style>#}
+    <title>Kaucja #{{ id }}</title>
 
       <style>
 @page {
@@ -63,7 +38,7 @@ font-size: 11pt;
   <div>
       <table style="width: 100%">
   <tr>
-      <td><h1>Faktura VAT</h1></td>
+      <td><h1>Potwierdzenie Kaucji</h1></td>
       <td style="text-align: right"><h1>Rezerwacja #{{ id }}</h1></td>
   </tr>
 </table>
@@ -105,16 +80,11 @@ font-size: 11pt;
       <tbody>
       <tr>
         <td>
-            Wypożyczenie samochodu {{ samochod }}
+            Kaucja {{ samochod }}
         </td>
         <td style="text-align: right">{{ samochod_koszt }} PLN</td>
       </tr>
-       <tr>
-        <td>
-            Ubezpieczenie variant: {{ ubezpieczenie }}
-        </td>
-        <td style="text-align: right">{{ ubezpieczenie_koszt }} PLN</td>
-      </tr>
+
           {% for dodatek in dodatki %}
           <tr>
         <td>dodatek.rodzaj</td>

@@ -2,6 +2,7 @@ from django import forms
 from django.forms import ModelForm
 from wypozyczalnia.models import *
 
+
 class ZmienDanePrywatna(ModelForm):
     class Meta:
         model = Uzytkownik

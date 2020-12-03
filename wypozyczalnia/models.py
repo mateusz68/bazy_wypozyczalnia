@@ -99,7 +99,7 @@ class Ubezpieczenie(models.Model):
     typ = models.ForeignKey(TypUbezpieczenia, on_delete=models.RESTRICT, null=False)
 
     def __str__(self):
-        return '%s %s' %(self.typ.variant, self.numer_polisy)
+        return '%s #%s' %(self.typ.variant, self.numer_polisy)
 
     def get_koszt(self, koszt):
         return (koszt * self.typ.stawka)/100
@@ -155,7 +155,7 @@ class Rezerwacja(models.Model):
         return koszt
 
     def __str__(self):
-        return '%s %s %s [Status: %s]' % (self.uzytkownik, self.samochod, self.pk, self.get_status_rezerwacji_display())
+        return '%s %s #%s [Status: %s]' % (self.uzytkownik, self.samochod.model, self.pk, self.get_status_rezerwacji_display())
 
     class Meta:
         verbose_name_plural = 'Rezerwacje'

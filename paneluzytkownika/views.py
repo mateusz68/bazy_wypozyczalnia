@@ -102,14 +102,18 @@ def szczegoly_rezerwacji_uztk(request, pk=None):
     dokument_platnosc = []
     for dokument in dokumenty:
         platnosci = Platnosc.objects.filter(dokument_id=dokument.id)
+        dodatki = DodatkoweOplaty.objects.filter(dokument_id=dokument.id)
         suma = 0
+        koszt = dokument.kwota + dokument.rezerwacja.ubezpieczenie.cena
         for platnosc in platnosci:
             suma += platnosc.wysokosc
-
+        for dodatek in dodatki:
+            koszt += dodatek.wysokosc
         temp = {
             'dokument': dokument,
             'platnosci': platnosci,
-            'wplacono': suma
+            'wplacono': suma,
+            'koszt': koszt
         }
         dokument_platnosc.append(temp)
 
@@ -126,13 +130,15 @@ def faktura_generuj_pdf(request, pk=None):
         return redirect('wypozyczalnia:index')
     if dokument.rezerwacja.uzytkownik != uzytkownik:
         return redirect('wypozyczalnia:index')
-    suma = dokument.kwota
+    suma = dokument.kwota + dokument.rezerwacja.ubezpieczenie.cena
     for d in dodatki:
         suma = suma + d.wysokosc
     context = {
         "id": dokument.rezerwacja.id,
         "uzytkownik": uzytkownik,
         "samochod_koszt": dokument.kwota,
+        "samochod": dokument.rezerwacja.samochod.model,
+        "ubezpieczenie": dokument.rezerwacja.ubezpieczenie.typ.variant,
         "ubezpieczenie_koszt": dokument.rezerwacja.ubezpieczenie.cena,
         "dodatki": dodatki,
         "suma": suma,
@@ -143,3 +149,29 @@ def faktura_generuj_pdf(request, pk=None):
     else:
         return HttpResponse("Error Rendering PDF", status=400)
 
+
+@login_required()
+def kaucja_generuj_pdf(request, pk=None):
+    uzytkownik = get_object_or_404(Uzytkownik, pk=request.user.id)
+    dokument = get_object_or_404(Dokument, pk = pk)
+    dodatki = DodatkoweOplaty.objects.filter(dokument_id=dokument.id)
+    if dokument.typ != Dokument.DokumentTyp.KAUCJA:
+        return redirect('wypozyczalnia:index')
+    if dokument.rezerwacja.uzytkownik != uzytkownik:
+        return redirect('wypozyczalnia:index')
+    suma = dokument.kwota
+    for d in dodatki:
+        suma = suma + d.wysokosc
+    context = {
+        "id": dokument.rezerwacja.id,
+        "uzytkownik": uzytkownik,
+        "samochod": dokument.rezerwacja.samochod.model,
+        "samochod_koszt": dokument.kwota,
+        "dodatki": dodatki,
+        "suma": suma,
+    }
+    pdf = render_to_pdf('pdf/kaucja.html', context)
+    if pdf:
+        return HttpResponse(pdf, content_type='application/pdf')
+    else:
+        return HttpResponse("Error Rendering PDF", status=400)

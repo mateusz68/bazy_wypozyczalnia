@@ -7,7 +7,7 @@
 {% endblock head %}
 
 {% block title %}
-    Rezerwacje wszystkie
+    {{ title }}
 {% endblock title %}
 
 {% block content %}
@@ -17,28 +17,15 @@
     <div class="bg-light">
       <form method="get" class="m-3">
 
-      <h4 style="margin-top: 0">Filtruj rezerwacje</h4>
+      <h4 style="margin-top: 0">Filtruj</h4>
        <div class="form-row">
-    <div class="form-group col-md-6">
-      <label for="inputEmail4">Data Od</label>
-        {% render_field filter.form.data_od_range class="form-control" type="datetime-local" %}
+
+    {% for field in filter.form %}
+                              <div class="form-group col-md-6">
+      <label for="inputEmail4">{{ field.label }}</label>
+        {% render_field field class="form-control"%}
     </div>
-    <div class="form-group col-md-6">
-      <label for="inputPassword4">Data Do</label>
-      {% render_field filter.form.data_do_range class="form-control" type="datetime-local" %}
-    </div>
-           <div class="form-group col-md-6">
-      <label for="inputPassword4">Samochód</label>
-      {% render_field filter.form.samochod class="form-control" %}
-    </div>
-           <div class="form-group col-md-6">
-      <label for="inputPassword4">Użytkownik</label>
-      {% render_field filter.form.uzytkownik class="form-control" %}
-    </div>
-           <div class="form-group col-md-6">
-      <label for="inputPassword4">Status</label>
-      {% render_field filter.form.status_rezerwacji class="form-control" %}
-    </div>
+           {% endfor %}
 
   </div>
         <div class="text-center">
@@ -51,15 +38,13 @@
     </div>
 
 
-
     {% if elementy.object_list %}
-        <table class="table table-striped table-responsive">
+        <table class="table table-striped">
             <thead>
             <tr>
                 <th scope="col">#</th>
                 <th scope="col">Nazwa</th>
                 <th scope="col">Edytuj</th>
-                <th scope="col">Szczegóły</th>
                 <th scope="col">Usuń</th>
             </tr>
             </thead>
@@ -69,8 +54,7 @@
                 <tr>
                     <th scope="row">{{ forloop.counter }}</th>
                     <td>{{ element }}</td>
-                    <td><a href="{{ url }}/edytuj/{{ element.pk }}" class="btn btn-warning" role="button">Edytuj</a></td>
-                    <td><a href="{{ url }}/szczegoly/{{ element.pk }}" class="btn btn-primary" role="button">Szczegóły</a></td>
+                    <td><a href="{{ url }}/edytuj/{{ element.pk }}" class="btn btn-primary" role="button">Edytuj</a></td>
                     <td><a href="{{ url }}/usun/{{ element.pk }}" class="btn btn-danger" role="button">Usuń</a></td>
                 </tr>
             {% endfor %}
