@@ -50,14 +50,15 @@ def rezerwuj_samochod(request):
     if request.method == 'POST':
         form = RezerwacjaUserForm(request.POST, key=pk)
         if form.is_valid():
-            temp_rez = Rezerwacja()
+            # temp_rez = Rezerwacja()
+            temp_rez = form.save(commit=False)
             temp_rez.uzytkownik = uzytkownik
             ubezpieczenie = Ubezpieczenie(cena=0, typ_id=form.cleaned_data.get('typ_ubezpieczenie'))
             ubezpieczenie.save()
             temp_rez.ubezpieczenie_id = ubezpieczenie.id
-            temp_rez.uwagi = form.cleaned_data.get('uwagi')
-            temp_rez.data_od = form.cleaned_data.get('data_od')
-            temp_rez.data_do = form.cleaned_data.get('data_do')
+            # temp_rez.uwagi = form.cleaned_data.get('uwagi')
+            # temp_rez.data_od = form.cleaned_data.get('data_od')
+            # temp_rez.data_do = form.cleaned_data.get('data_do')
             temp_rez.samochod_id = samochod.id
             temp_rez.save()
             ubezpieczenie.numer_polisy = temp_rez.id

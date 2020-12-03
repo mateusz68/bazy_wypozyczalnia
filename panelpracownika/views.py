@@ -65,7 +65,9 @@ def rezerwacja_szczegoly(request, pk=None):
         platnosci = Platnosc.objects.filter(dokument_id=dokument.id)
         dodatki = DodatkoweOplaty.objects.filter(dokument_id=dokument.id)
         suma = 0
-        koszt = dokument.kwota + dokument.rezerwacja.ubezpieczenie.cena
+        koszt = dokument.kwota
+        if dokument.typ == Dokument.DokumentTyp.FAKTURA:
+            koszt = koszt + dokument.rezerwacja.ubezpieczenie.cena
         for platnosc in platnosci:
             suma += platnosc.wysokosc
         for dodatek in dodatki:
@@ -134,7 +136,7 @@ def rezerwacja_dodaj(request):
     if request.method == 'POST':
         form = RezerwacjaForm(request.POST)
         if form.is_valid():
-            rezerwacja = form.save()
+            rezerwacja = form.save(commit=False)
             ubezpieczenie = Ubezpieczenie(cena=100, typ_id=form.cleaned_data.get('typ_ubezpieczenie'))
             ubezpieczenie.save()
             rezerwacja.ubezpieczenie_id = ubezpieczenie.id
@@ -421,7 +423,7 @@ def samochod(request):
 @user_passes_test(czy_pracownik, login_url='wypozyczalnia:brak_dostepu')
 def samochod_dodaj(request):
     if request.method == 'POST':
-        form = SamochodForm(request.POST)
+        form = SamochodForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
             return redirect('panelpracownika:samochod')
@@ -435,7 +437,7 @@ def samochod_dodaj(request):
 def samochod_edytuj(request, pk=None):
     samochod = get_object_or_404(Samochod, pk=pk)
     if request.method == 'POST':
-        form = SamochodForm(request.POST, instance=samochod)
+        form = SamochodForm(request.POST, request.FILES, instance=samochod)
         if form.is_valid():
             form.save()
             return redirect('panelpracownika:samochod')
@@ -482,7 +484,7 @@ def typ_ubezpieczenia_dodaj(request):
         form = UbezpieczenieTypForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('panelpracownika:typ_ubezpieczenia_dodaj')
+            return redirect('panelpracownika:typ_ubezpieczenia')
     else:
         form = UbezpieczenieTypForm()
     return render(request, 'dodaj_form.html', {'form': form, 'title': "Dodaj nowy typ ubezpieczenia", 'target': 'panelpracownika:typ_ubezpieczenia_dodaj'})
@@ -543,7 +545,7 @@ def model_dodaj(request):
             return redirect('panelpracownika:model')
     else:
         form = ModelForm()
-    return render(request, 'dodaj_form.html', {'form': form, 'title': "Dodaj nowy model samochodu", 'target': 'panelpracownika:dodaj_model'})
+    return render(request, 'dodaj_form.html', {'form': form, 'title': "Dodaj nowy model samochodu", 'target': 'panelpracownika:model_dodaj'})
 
 
 @login_required()
@@ -571,7 +573,7 @@ def model_usun(request, pk=None):
             return redirect('panelpracownika:model')
     else:
         form = ModelDeleteForm(instance=model)
-    return render(request, 'usun_form.html', {'form': form, 'element': model, 'title': "Usuń wybrany model samochodu", 'target': 'panelpracownika:usun_model'})
+    return render(request, 'usun_form.html', {'form': form, 'element': model, 'title': "Usuń wybrany model samochodu", 'target': 'panelpracownika:model_usun'})
 
 
 @login_required()
@@ -856,3 +858,13 @@ def kaucja_generuj_pdf(request, pk=None):
         return HttpResponse(pdf, content_type='application/pdf')
     else:
         return HttpResponse("Error Rendering PDF", status=400)
+
+
+class UserAutocomplete(autocomplete.Select2QuerySetView):
+    def get_queryset(self):
+        qs = Dokument.objects.all()
+
+        if self.q:
+            qs = qs.filter(name__istartswith=self.q)
+
+        return qs

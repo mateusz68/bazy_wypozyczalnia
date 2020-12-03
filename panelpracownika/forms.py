@@ -170,9 +170,10 @@ class PlatnoscDeleteForm(ModelForm):
 class UbezpieczenieTypForm(ModelForm):
     class Meta:
         model = TypUbezpieczenia
-        fields = ['variant']
+        fields = ['variant', 'stawka']
         widgets = {
             'variant': forms.TextInput(attrs={'class': 'form-control'}),
+            'stawka': forms.NumberInput(attrs={'class': 'form-control'}),
         }
 
 

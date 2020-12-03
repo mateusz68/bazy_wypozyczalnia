@@ -117,8 +117,8 @@ font-size: 11pt;
       </tr>
           {% for dodatek in dodatki %}
           <tr>
-        <td>dodatek.rodzaj</td>
-        <td>dodatek.wysokosc</td>
+        <td>{{ dodatek.rodzaj }}</td>
+        <td style="text-align: right">{{ dodatek.wysokosc }} PLN</td>
       </tr>
           {% endfor %}
     </tbody>

@@ -11,7 +11,7 @@
 
     <p>Uzupełniż poniższy formularz.</p>
 
-    <form action="{% url target %}" method="post">
+    <form action="{% url target %}" enctype="multipart/form-data" method="post">
         {% csrf_token %}
         {% for field in form %}
             <div class="form-group row">

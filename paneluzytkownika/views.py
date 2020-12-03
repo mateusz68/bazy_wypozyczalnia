@@ -19,17 +19,21 @@ def rezerwacja_anuluj(request, pk=None):
     rezerwacja = get_object_or_404(Rezerwacja, pk=pk)
     if uzytkownik != rezerwacja.uzytkownik:
         return redirect('paneluzytkownika:lista_rezerwacji_uzytk')
-    if rezerwacja.status_rezerwacji != Rezerwacja.StatusRezerwacji.WERYFIKACJA or rezerwacja.status_rezerwacji != Rezerwacja.StatusRezerwacji.ZAAKCEPTOWANA:
-        return redirect('paneluzytkownika:lista_rezerwacji_uzytk')
-    if request.method == 'POST':
-        form = AnulujRezerwacje(request.POST, instance=rezerwacja)
-        if form.is_valid():
-            rezerwacja.status_rezerwacji = Rezerwacja.StatusRezerwacji.ANULOWANA
-            rezerwacja.save()
-            return redirect('paneluzytkownika:lista_rezerwacji_uzytk')
-    else:
-        form = AnulujRezerwacje(instance=rezerwacja)
-    return render(request, 'anuluj_rezerwacja.html', {'form': form, 'element': rezerwacja, 'title': "Anuluj wybraną rezerwację", 'target': 'paneluzytkownika:rezerwacja_anuluj'})
+
+    if rezerwacja.status_rezerwacji == Rezerwacja.StatusRezerwacji.WERYFIKACJA or rezerwacja.status_rezerwacji == Rezerwacja.StatusRezerwacji.ZAAKCEPTOWANA:
+        if request.method == 'POST':
+            form = AnulujRezerwacje(request.POST, instance=rezerwacja)
+            if form.is_valid():
+                rezerwacja.status_rezerwacji = Rezerwacja.StatusRezerwacji.ANULOWANA
+                rezerwacja.save()
+                return redirect('paneluzytkownika:lista_rezerwacji_uzytk')
+        else:
+            form = AnulujRezerwacje(instance=rezerwacja)
+        return render(request, 'anuluj_rezerwacja.html',
+                      {'form': form, 'element': rezerwacja, 'title': "Anuluj wybraną rezerwację",
+                       'target': 'paneluzytkownika:rezerwacja_anuluj'})
+
+    return redirect('paneluzytkownika:lista_rezerwacji_uzytk')
 
 
 @login_required()
@@ -104,7 +108,9 @@ def szczegoly_rezerwacji_uztk(request, pk=None):
         platnosci = Platnosc.objects.filter(dokument_id=dokument.id)
         dodatki = DodatkoweOplaty.objects.filter(dokument_id=dokument.id)
         suma = 0
-        koszt = dokument.kwota + dokument.rezerwacja.ubezpieczenie.cena
+        koszt = dokument.kwota
+        if dokument.typ == Dokument.DokumentTyp.FAKTURA:
+            koszt = koszt + dokument.rezerwacja.ubezpieczenie.cena
         for platnosc in platnosci:
             suma += platnosc.wysokosc
         for dodatek in dodatki:

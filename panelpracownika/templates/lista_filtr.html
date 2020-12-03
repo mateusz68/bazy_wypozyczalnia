@@ -12,7 +12,7 @@
 
 {% block content %}
     <div class="text-center">
-        <a href="{{ url }}/dodaj" class="btn btn-success btn-lg" role="button">Dodaj nową rezerwację</a></div><br>
+        <a href="{{ url }}/dodaj" class="btn btn-success btn-lg" role="button">Dodaj nowy element</a></div><br>
 
     <div class="bg-light">
       <form method="get" class="m-3">
@@ -36,7 +36,10 @@
 
   </form>
     </div>
-
+{#<form method="get">#}
+{#    {{ filter.form.as_p }}#}
+{#    <button type="submit">Search</button>#}
+{#  </form>#}
 
     {% if elementy.object_list %}
         <table class="table table-striped">
