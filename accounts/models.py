@@ -65,7 +65,7 @@ class Uzytkownik(AbstractBaseUser):
 
     @property
     def is_staff(self):
-        if self.rola in [self.RolaUzytkownika.PRACOWNIK, self.RolaUzytkownika.ADMINISTRATOR]:
+        if self.rola == self.RolaUzytkownika.ADMINISTRATOR:
             return True
         return False
 

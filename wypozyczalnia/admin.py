@@ -14,7 +14,7 @@ class UserAdmin(BaseUserAdmin):
     form = CustomUserChangeForm
 
     # Pola które wyświetlam
-    list_display = ('email', 'imie', 'nazwisko', 'rola')
+    list_display = ('email', 'rola')
     list_filter = ('rola',)
     fieldsets = (
         ('Ogólne', {'fields': ('email', 'password')}),

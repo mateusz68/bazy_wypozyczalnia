@@ -1,7 +1,6 @@
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Row, Column, Submit, Field, Div
 from django_filters.widgets import RangeWidget
-from dal import autocomplete
 from django_select2.forms import Select2Widget
 
 from wypozyczalnia.models import *

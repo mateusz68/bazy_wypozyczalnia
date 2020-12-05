@@ -559,7 +559,7 @@ def model_edytuj(request, pk=None):
             return redirect('panelpracownika:model')
     else:
         form = ModelForm(instance=model)
-    return render(request, 'edytuj_form.html', {'form': form, 'element': model, 'title': "Edytuj wybrany model samochodu", 'target': 'panelpracownika:edytuj_model'})
+    return render(request, 'edytuj_form.html', {'form': form, 'element': model, 'title': "Edytuj wybrany model samochodu", 'target': 'panelpracownika:model_edytuj'})
 
 
 @login_required()

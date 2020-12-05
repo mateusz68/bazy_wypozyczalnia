@@ -32,8 +32,6 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'dal',
-    'dal_select2',
     'crispy_forms',
     'accounts.apps.AccountsConfig',
     'paneluzytkownika.apps.PaneluzytkownikaConfig',

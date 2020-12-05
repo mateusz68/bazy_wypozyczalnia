@@ -4,6 +4,8 @@ from wypozyczalnia.models import *
 
 
 class ZmienDanePrywatna(ModelForm):
+    imie = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    nazwisko = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control'}))
     class Meta:
         model = Uzytkownik
         fields = ['imie', 'nazwisko', 'ulica', 'miasto', 'kod_pocztowy', 'numer_telefonu']
@@ -24,6 +26,8 @@ class AnulujRezerwacje(ModelForm):
 
 
 class ZmienDaneFirma(ModelForm):
+    nazwa_firmy = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    numer_nip = forms.IntegerField(required=True, widget=forms.NumberInput(attrs={'class': 'form-control'}))
     class Meta:
         model = Uzytkownik
         fields = ['numer_nip', 'nazwa_firmy','ulica', 'miasto', 'kod_pocztowy', 'numer_telefonu']

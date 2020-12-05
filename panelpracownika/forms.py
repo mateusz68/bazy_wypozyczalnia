@@ -244,7 +244,7 @@ class KategoriaSamochoduDeleteForm(ModelForm):
     class Meta:
         model = SamochodKategoria
         fields = []
-
+#TODO dodajć wyrzucanie błędu przy usuwaniu jeżeli są samochody
 
 class SilnikSamochodForm(ModelForm):
     class Meta:
