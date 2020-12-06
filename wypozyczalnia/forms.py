@@ -1,3 +1,6 @@
+from datetime import date, datetime
+
+import pytz
 from django import forms
 from django.contrib import admin
 from django.db.models import Q
@@ -35,7 +38,6 @@ class RezerwacjaUserForm(forms.ModelForm):
     typ_ubezpieczenie = forms.Select()
 
     def __init__(self, *args, key, **kwargs):
-        print(key)
         super(RezerwacjaUserForm, self).__init__(*args, **kwargs)
         samochod = Samochod.objects.filter(pk=key)
         self.samochod_val = Samochod.objects.get(pk=key)
@@ -57,6 +59,10 @@ class RezerwacjaUserForm(forms.ModelForm):
         cleaned_data = super().clean()
         data_do = cleaned_data.get('data_do')
         data_od = cleaned_data.get('data_od')
+        now = datetime.now()
+        now = pytz.utc.localize(now)
+        if data_od < now:
+            raise forms.ValidationError({'data_od': 'Błędna data rozpoczęcia! Data nie może być mniejsza niż data obecna.'})
         if data_od > data_do:
             raise forms.ValidationError({'data_do': 'Błędny zakres dat. Data zakończenia rezerwacji musi być większa od daty rozpoczecia rezerwacji!'})
         # temp = Rezerwacja.objects.filter(Q(data_do__range=(data_od, data_do)) | Q(data_od__range=(data_od, data_do)))
