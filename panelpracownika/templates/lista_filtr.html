@@ -17,25 +17,25 @@
         <a href="{{ url }}/dodaj" class="btn btn-success btn-lg" role="button">Dodaj nowy element</a></div><br>
 
     <div class="bg-light">
-      <form method="get" class="m-3">
+        <form method="get" class="m-3">
 
-      <h4 style="margin-top: 0">Filtruj</h4>
-       <div class="form-row">
+            <h4 style="margin-top: 0">Filtruj</h4>
+            <div class="form-row">
 
-    {% for field in filter.form %}
-                              <div class="form-group col-md-6">
-      <label for="inputEmail4">{{ field.label }}</label>
-        {% render_field field class="form-control"%}
-    </div>
-           {% endfor %}
+                {% for field in filter.form %}
+                    <div class="form-group col-md-6">
+                        <label for="inputEmail4">{{ field.label }}</label>
+                        {% render_field field class="form-control"%}
+                    </div>
+                {% endfor %}
 
-  </div>
-        <div class="text-center">
-      <button type="submit" class="btn btn-primary">
-        <span class="glyphicon glyphicon-search"></span> Filtruj
-      </button>
             </div>
-  </form>
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary">
+                    <span class="glyphicon glyphicon-search"></span> Filtruj
+                </button>
+            </div>
+        </form>
     </div>
 
     {% if elementy.object_list %}
@@ -63,7 +63,7 @@
         </table>
 
 
-       <nav aria-label="Page navigation">
+        <nav aria-label="Page navigation">
             <ul class="pagination justify-content-center">
 
                 {% if elementy.has_previous %}

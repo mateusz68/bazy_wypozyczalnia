@@ -8,8 +8,8 @@
 {% endblock title %}
 
 {% block content %}
-<div class="text-center">
-    <a href="{{ url }}/dodaj" class="btn btn-success btn-lg" role="button">Dodaj nowy element</a></div><br>
+    <div class="text-center">
+        <a href="{{ url }}/dodaj" class="btn btn-success btn-lg" role="button">Dodaj nowy element</a></div><br>
 
     {% if samochody.object_list %}
         <table class="table table-striped">
@@ -35,27 +35,27 @@
             </tbody>
         </table>
 
- {% if samochody.has_other_pages %}
-  <ul class="pagination">
-    {% if samochody.has_previous %}
-      <li><a href="?page={{ samochody.previous_page_number }}">&laquo;</a></li>
-    {% else %}
-      <li class="disabled"><span>&laquo;</span></li>
-    {% endif %}
-    {% for i in samochody.paginator.page_range %}
-      {% if samochody.number == i %}
-        <li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
-      {% else %}
-        <li><a href="?page={{ i }}">{{ i }}</a></li>
-      {% endif %}
-    {% endfor %}
-    {% if samochody.has_next %}
-      <li><a href="?page={{ samochody.next_page_number }}">&raquo;</a></li>
-    {% else %}
-      <li class="disabled"><span>&raquo;</span></li>
-    {% endif %}
-  </ul>
-{% endif %}
+        {% if samochody.has_other_pages %}
+            <ul class="pagination">
+                {% if samochody.has_previous %}
+                    <li><a href="?page={{ samochody.previous_page_number }}">&laquo;</a></li>
+                {% else %}
+                    <li class="disabled"><span>&laquo;</span></li>
+                {% endif %}
+                {% for i in samochody.paginator.page_range %}
+                    {% if samochody.number == i %}
+                        <li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
+                    {% else %}
+                        <li><a href="?page={{ i }}">{{ i }}</a></li>
+                    {% endif %}
+                {% endfor %}
+                {% if samochody.has_next %}
+                    <li><a href="?page={{ samochody.next_page_number }}">&raquo;</a></li>
+                {% else %}
+                    <li class="disabled"><span>&raquo;</span></li>
+                {% endif %}
+            </ul>
+        {% endif %}
 
 
 

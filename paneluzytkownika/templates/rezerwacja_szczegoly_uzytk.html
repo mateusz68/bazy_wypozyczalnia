@@ -5,64 +5,64 @@
 
 {% block content %}
     <h1 class="text-center m-3">Szczegóły rezerwacji nr. {{ rezerwacja.pk }}</h1>
-<h3>Szczegóły:</h3>
-<table class="table table-striped">
-            <thead>
-            <tr>
-                <th scope="col">#</th>
-                <th scope="col">Nazwa</th>
-            </tr>
-            </thead>
-            <tbody>
+    <h3>Szczegóły:</h3>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Nazwa</th>
+        </tr>
+        </thead>
+        <tbody>
 
-                <tr>
-                    <th scope="row">Data Od</th>
-                    <td>{{ rezerwacja.data_od }}</td>
-                </tr>
-            <tr>
-                    <th scope="row">Data Do</th>
-                    <td>{{ rezerwacja.data_do }}</td>
-                </tr>
-            <tr>
-                    <th scope="row">Uwagi</th>
-                    <td>{{ rezerwacja.uwagi }}</td>
-                </tr>
-            <tr>
-                    <th scope="row">Samochód</th>
-                    <td>{{ rezerwacja.samochod }}</td>
-                </tr>
-            <tr>
-                    <th scope="row">Status</th>
-                    <td>{{ rezerwacja.get_status_rezerwacji_display }}</td>
-                </tr>
-            </tbody>
-        </table>
+        <tr>
+            <th scope="row">Data Od</th>
+            <td>{{ rezerwacja.data_od }}</td>
+        </tr>
+        <tr>
+            <th scope="row">Data Do</th>
+            <td>{{ rezerwacja.data_do }}</td>
+        </tr>
+        <tr>
+            <th scope="row">Uwagi</th>
+            <td>{{ rezerwacja.uwagi }}</td>
+        </tr>
+        <tr>
+            <th scope="row">Samochód</th>
+            <td>{{ rezerwacja.samochod }}</td>
+        </tr>
+        <tr>
+            <th scope="row">Status</th>
+            <td>{{ rezerwacja.get_status_rezerwacji_display }}</td>
+        </tr>
+        </tbody>
+    </table>
 
     {% if rezerwacja.status_rezerwacji == 'WE' or rezerwacja.status_rezerwacji == 'ZA' %}
         <div class="text-center">
-    <a href="/panel_uzytkownika/rezerwacje/anuluj/{{ rezerwacja.id }}" class="btn btn-warning btn-lg" role="button">Anuluj Rezerwację</a>
-    </div>
+            <a href="/panel_uzytkownika/rezerwacje/anuluj/{{ rezerwacja.id }}" class="btn btn-warning btn-lg" role="button">Anuluj Rezerwację</a>
+        </div>
     {% endif %}
 
 
     <h3>Ubezpieczenie:</h3>
-<table class="table table-striped">
-            <thead>
-            <tr>
-                <th scope="col">Numer Polisy</th>
-                <th scope="col">Cena</th>
-                <th>Variant</th>
-            </tr>
-            </thead>
-            <tbody>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th scope="col">Numer Polisy</th>
+            <th scope="col">Cena</th>
+            <th>Variant</th>
+        </tr>
+        </thead>
+        <tbody>
 
-                <tr>
-                    <td>{{ rezerwacja.ubezpieczenie.numer_polisy }}</td>
-                    <td>{{ rezerwacja.ubezpieczenie.cena }}</td>
-                    <td>{{ rezerwacja.ubezpieczenie.typ.variant }}</td>
-                </tr>
-            </tbody>
-        </table>
+        <tr>
+            <td>{{ rezerwacja.ubezpieczenie.numer_polisy }}</td>
+            <td>{{ rezerwacja.ubezpieczenie.cena }}</td>
+            <td>{{ rezerwacja.ubezpieczenie.typ.variant }}</td>
+        </tr>
+        </tbody>
+    </table>
 
     <h3>Dokumenty:</h3>
     <hr>
@@ -70,13 +70,13 @@
         <h4>{{ dokument.dokument.get_typ_display }}</h4>
         {% if dokument.dokument.typ == "FV" %}
             <div class="text-center">
-        <a href="/panel_uzytkownika/rezerwacje/dokument/faktura/{{ dokument.dokument.id }}" class="btn btn-success btn-lg" role="button" target="_blank">Pobierz Fakturę</a>
-</div>
+                <a href="/panel_uzytkownika/rezerwacje/dokument/faktura/{{ dokument.dokument.id }}" class="btn btn-success btn-lg" role="button" target="_blank">Pobierz Fakturę</a>
+            </div>
         {% endif %}
         {% if dokument.dokument.typ == "KA" %}
             <div class="text-center">
-        <a href="/panel_uzytkownika/rezerwacje/dokument/kaucja/{{ dokument.dokument.id }}" class="btn btn-success btn-lg" role="button" target="_blank">Pobierz Dokument</a>
-</div>
+                <a href="/panel_uzytkownika/rezerwacje/dokument/kaucja/{{ dokument.dokument.id }}" class="btn btn-success btn-lg" role="button" target="_blank">Pobierz Dokument</a>
+            </div>
         {% endif %}
         <br>
         <h4>Otrzymane płatności:</h4>
@@ -89,45 +89,45 @@
             </tr>
             </thead>
             <tbody>
-                {% for platnosc in dokument.platnosci %}
+            {% for platnosc in dokument.platnosci %}
                 <tr>
                     <td>{{ platnosc.data }}</td>
                     <td>{{ platnosc.typ }}</td>
                     <td>{{ platnosc.wysokosc }} PLN</td>
                 </tr>
-                    {% endfor %}
+            {% endfor %}
             </tbody>
         </table><br>
- <table class="table table-striped">
+        <table class="table table-striped">
             <tbody>
-                <tr class="table-danger">
-                    <td>Należność do zapłacenia:</td>
-                    <td>{{ dokument.koszt }} PLN</td>
-                    </tr>
-                    <tr class="table-success">
-                    <td>Wpłacona kwota:</td>
-                    <td>{{ dokument.wplacono }} PLN</td>
-                </tr>
+            <tr class="table-danger">
+                <td>Należność do zapłacenia:</td>
+                <td>{{ dokument.koszt }} PLN</td>
+            </tr>
+            <tr class="table-success">
+                <td>Wpłacona kwota:</td>
+                <td>{{ dokument.wplacono }} PLN</td>
+            </tr>
             </tbody>
         </table>
         {% if dokument.koszt == dokument.wplacono %}
             <div class="alert alert-success">
-              Dokument opłacono poprawnie!
+                Dokument opłacono poprawnie!
             </div>
         {% elif dokument.koszt < dokument.wplacono %}
             <div class="alert alert-warning">
-              Wpłacona kwota jest wyższa od wymaganej!
+                Wpłacona kwota jest wyższa od wymaganej!
             </div>
         {% else %}
             <div class="alert alert-danger">
-              Nie została wpłacona wymagana kwota.
+                Nie została wpłacona wymagana kwota.
             </div>
         {% endif %}
-<hr>
+        <hr>
     {% endfor %}
     <br>
-<div class="text-center">
+    <div class="text-center">
 
-    <a href="/panel_uzytkownika/rezerwacje" class="btn btn-warning btn-lg" role="button">Wróć do listy rezerwacji</a>
+        <a href="/panel_uzytkownika/rezerwacje" class="btn btn-warning btn-lg" role="button">Wróć do listy rezerwacji</a>
     </div>
 {% endblock %}

@@ -54,6 +54,12 @@ class RegisterFormFir(forms.ModelForm):
             raise forms.ValidationError("Numer telefonu musi zawierać 9 cyfr!")
         return numer
 
+    def clean_numer_nip(self):
+        numer = self.cleaned_data.get('numer_nip')
+        if len(str(numer)) != 10:
+            raise forms.ValidationError("Numer nip musi zawierać 10 cyfr!")
+        return numer
+
 
 class RegisterFormPry(forms.ModelForm):
     password2 = forms.CharField(label='Powtórz hasło', widget=forms.PasswordInput(attrs={'class': 'form-control'}))

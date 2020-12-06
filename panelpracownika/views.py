@@ -405,7 +405,7 @@ def ubezpieczenie_usun(request, pk=None):
 @login_required()
 @user_passes_test(czy_pracownik, login_url='wypozyczalnia:brak_dostepu')
 def samochod(request):
-    samochody_lista = Samochod.objects.all()
+    samochody_lista = Samochod.objects.all().order_by('id')
     page = request.GET.get('page', 1)
     paginator = Paginator(samochody_lista, 10)
     try:
@@ -515,7 +515,7 @@ def typ_ubezpieczenia_usun(request, pk=None):
             return redirect('panelpracownika:typ_ubezpieczenia')
     else:
         form = UbezpieczenieTypDeleteForm(instance=typ)
-    return render(request, 'usun_form.html', {'form': form, 'element': typ, 'title': "Usuń wybrany typ ubezpieczenia", 'target': 'panelpracownika:ubezpieczenie_typ_usun'})
+    return render(request, 'usun_form.html', {'form': form, 'element': typ, 'title': "Usuń wybrany typ ubezpieczenia", 'target': 'panelpracownika:typ_ubezpieczenia_usun'})
 
 
 @login_required()

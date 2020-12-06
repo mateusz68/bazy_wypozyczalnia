@@ -41,7 +41,7 @@ margin: 0.5cm;
 
 @font-face {
 font-family: "Roboto-Black";
-src: url("C:\Users\Mateusz\PycharmProjects\bazy_projekt\paneluzytkownika\templates\pdf\Roboto-Black.ttf");
+src: url("C:\Users\Mateusz\Desktop\Studia\bazy\bazy_projekt\paneluzytkownika\templates\pdf\Roboto-Black.ttf");
 }
 
 html {
@@ -80,8 +80,8 @@ font-size: 11pt;
       <td style="text-align: right">
           <strong><h2>Nabywca</h2></strong>
           {% if uzytkownik.czy_firma %}
-          {{ uzytkonik.nazwa_firmy }}<br>
-              NIP {{ uzytkonik.numer_nip }}<br>
+          {{ uzytkownik.nazwa_firmy }}<br>
+          NIP {{ uzytkownik.numer_nip }}<br>
           {{ uzytkownik.ulica }}<br>
           {{ uzytkownik.kod_pocztowy }} {{ uzytkownik.miasto }}
           {% else %}

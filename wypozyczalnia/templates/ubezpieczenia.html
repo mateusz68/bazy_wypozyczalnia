@@ -6,24 +6,24 @@
 {% endblock head %}
 
 {% block content %}
-<h1 class="text-center">Dostępne typy ubezpieczenia</h1>
+    <h1 class="text-center">Dostępne typy ubezpieczenia</h1>
     <table class="table">
-  <thead>
-    <tr>
-      <th scope="col">#</th>
-      <th scope="col">Typ</th>
-        <th scope="col">Stawka*</th>
-    </tr>
-  </thead>
-  <tbody>
-  {% for ubezpieczenie in ubezpieczenia %}
-    <tr>
-      <th scope="row">{{ forloop.counter }}</th>
-      <td>{{ ubezpieczenie.variant }}</td>
-      <td>{{ ubezpieczenie.stawka }} %</td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
+        <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Typ</th>
+            <th scope="col">Stawka*</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for ubezpieczenie in ubezpieczenia %}
+            <tr>
+                <th scope="row">{{ forloop.counter }}</th>
+                <td>{{ ubezpieczenie.variant }}</td>
+                <td>{{ ubezpieczenie.stawka }} %</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
     <p>*jest to procentowy koszt ubezpieczenia na podstawie kwoty całego zamówienia</p>
 {% endblock %}

@@ -34,19 +34,15 @@ class RezerwacjaEditForm(ModelForm):
     def clean(self):
         cleaned_data = super().clean()
         data_do = cleaned_data.get('data_do')
-
         data_od = cleaned_data.get('data_od')
         if data_od > data_do:
             raise forms.ValidationError({'data_do': 'Błędny zakres dat. Data zakończenia rezerwacji musi być większa od daty rozpoczecia rezerwacji!'})
         samochod = cleaned_data.get('samochod')
-        print(samochod)
         temp = Rezerwacja.objects.filter(
             (Q(data_do__range=(data_od, data_do)) | Q(data_od__range=(data_od, data_do))) & Q(
                 samochod_id=samochod.id) & ~Q(pk=self.key))
-        print(temp)
         if len(temp) != 0:
             raise forms.ValidationError({'data_do': 'Błędny zakres dat. Inne wypożyczenie jest już w tym przedziale!'})
-        print(data_do)
         return cleaned_data
 
 
@@ -182,6 +178,14 @@ class UbezpieczenieTypDeleteForm(ModelForm):
         model = TypUbezpieczenia
         fields = []
 
+    def clean(self):
+        cleaned_data = super().clean()
+        get_instance = self.instance
+        ubezpieczenie = Ubezpieczenie.objects.filter(typ_id=get_instance.id)
+        if len(ubezpieczenie) != 0:
+            raise forms.ValidationError('Nie można usunąc wybranego typu ubezpieczenia ponieważ jest przypisane do niego ubezpieczenia!')
+        return cleaned_data
+
 
 class UbezpieczenieForm(ModelForm):
     class Meta:
@@ -198,6 +202,14 @@ class UbezpieczenieDeleteForm(ModelForm):
     class Meta:
         model = Ubezpieczenie
         fields = []
+
+    def clean(self):
+        cleaned_data = super().clean()
+        get_instance = self.instance
+        rezerwacja = Rezerwacja.objects.filter(ubezpieczenie_id=get_instance.id)
+        if len(rezerwacja) != 0:
+            raise forms.ValidationError('Nie można usunąc wybranego ubezpieczenia ponieważ jest przypisana do niego rezerwacja!')
+        return cleaned_data
 
 
 class ModelForm(ModelForm):
@@ -244,7 +256,15 @@ class KategoriaSamochoduDeleteForm(ModelForm):
     class Meta:
         model = SamochodKategoria
         fields = []
-#TODO dodajć wyrzucanie błędu przy usuwaniu jeżeli są samochody
+
+    def clean(self):
+        cleaned_data = super().clean()
+        get_instance = self.instance
+        samochody = Samochod.objects.filter(kategoria_id=get_instance.id)
+        if len(samochody) != 0:
+            raise forms.ValidationError('Nie można usunąc wybranej kategorii ponieważ są przypisane do niej samochody!')
+        return cleaned_data
+
 
 class SilnikSamochodForm(ModelForm):
     class Meta:
@@ -260,6 +280,14 @@ class SilnikSamochodDeleteForm(ModelForm):
         model = SamochodSilnik
         fields = []
 
+    def clean(self):
+        cleaned_data = super().clean()
+        get_instance = self.instance
+        samochody = Samochod.objects.filter(silnik_id=get_instance.id)
+        if len(samochody) != 0:
+            raise forms.ValidationError('Nie można usunąc wybranego rodzaju silnika ponieważ są przypisane do niego samochody!')
+        return cleaned_data
+
 
 class SkrzyniaSamochodForm(ModelForm):
     class Meta:
@@ -274,6 +302,14 @@ class SkrzyniaSamochodDeleteForm(ModelForm):
     class Meta:
         model = SamochodSkrzynia
         fields = []
+
+    def clean(self):
+        cleaned_data = super().clean()
+        get_instance = self.instance
+        samochody = Samochod.objects.filter(skrzynia_id=get_instance.id)
+        if len(samochody) != 0:
+            raise forms.ValidationError('Nie można usunąc wybranego rodzaju skrzyni biegów ponieważ są przypisane do niego samochody!')
+        return cleaned_data
 
 
 class SamochodForm(ModelForm):
@@ -301,3 +337,11 @@ class SamochodDeleteForm(ModelForm):
     class Meta:
         model = Samochod
         fields = []
+
+    def clean(self):
+        cleaned_data = super().clean()
+        get_instance = self.instance
+        rezerwacja = Rezerwacja.objects.filter(samochod_id=get_instance.id)
+        if len(rezerwacja) != 0:
+            raise forms.ValidationError('Nie można usunąc wybranego samochodu ponieważ jest przypisana do niego przynajmniej jedna rezerwacja!')
+        return cleaned_data

@@ -8,16 +8,16 @@
 {% endblock title %}
 
 {% block content %}
-<div class="col text-center">
-    <form action="{% url target element.pk %}" method="post">
-        {% csrf_token %}
-        {{ form }}
-        Czy napewno chcesz anulować następującą rezerwację:
-        <p class="font-weight-bold">{{ element }}</p>
-        <button type="submit" class="btn btn-danger btn-lg" >Potwierdź</button>
-        <a href="#" onclick="history.go(-1)" class="btn btn-success btn-lg" role="button">Anuluj</a>
-    </form>
+    <div class="col text-center">
+        <form action="{% url target element.pk %}" method="post">
+            {% csrf_token %}
+            {{ form }}
+            Czy napewno chcesz anulować następującą rezerwację:
+            <p class="font-weight-bold">{{ element }}</p>
+            <button type="submit" class="btn btn-danger btn-lg" >Potwierdź</button>
+            <a href="#" onclick="history.go(-1)" class="btn btn-success btn-lg" role="button">Anuluj</a>
+        </form>
 
 
-        </div>
+    </div>
 {% endblock %}

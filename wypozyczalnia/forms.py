@@ -59,9 +59,7 @@ class RezerwacjaUserForm(forms.ModelForm):
         data_od = cleaned_data.get('data_od')
         if data_od > data_do:
             raise forms.ValidationError({'data_do': 'Błędny zakres dat. Data zakończenia rezerwacji musi być większa od daty rozpoczecia rezerwacji!'})
-        # samochod = cleaned_data.get('samochod')
         # temp = Rezerwacja.objects.filter(Q(data_do__range=(data_od, data_do)) | Q(data_od__range=(data_od, data_do)))
-        samochod = cleaned_data.get('samochod')
         temp = Rezerwacja.objects.filter((Q(data_do__range=(data_od, data_do)) | Q(data_od__range=(data_od, data_do))) &Q(samochod_id=self.samochod_val.id) )
         if len(temp) != 0:
             raise forms.ValidationError({'data_do': 'Błędny zakres dat. Inna rezerwacja jest już w tym przedziale czasowym!'})
